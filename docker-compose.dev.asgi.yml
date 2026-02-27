@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    container_name: mapv12_web_dev_asgi
+    command: ["uvicorn", "asgi_realtime:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    env_file:
+      - .env.dev
+    volumes:
+      - .:/app
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  bot:
+    build: .
+    container_name: mapv12_bot_dev_asgi
+    command: ["python", "bot.py"]
+    env_file:
+      - .env.dev
+    environment:
+      MAP_API_URL: "http://web:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      - web
+    restart: unless-stopped

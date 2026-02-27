@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  bot:
+    build: .
+    container_name: mapv12_bot_only
+    command: ["python", "bot.py"]
+    env_file:
+      - .env.prod
+    # MAP_API_URL должен указывать на внешний backend (например, http://server:8000)
+    # Можно задать его в .env.prod или переопределить здесь:
+    # environment:
+    #   MAP_API_URL: "http://your-backend-host:8000"
+    restart: unless-stopped

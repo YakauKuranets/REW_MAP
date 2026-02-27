@@ -1,0 +1,101 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: mapv12_redis
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - mapv12_redisdata:/data
+    networks:
+      - dutytracker_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  web:
+    build: .
+    container_name: mapv12_web
+    command: ["gunicorn", "-c", "deploy/gunicorn.conf.py", "wsgi:app"]
+    env_file:
+      - .env.prod
+    volumes:
+      # В проде код, как правило, не монтируем — используется образ
+      # Но монтируем данные (БД + uploads), чтобы они сохранялись между перезапусками
+      - ./app.db:/app/app.db
+      - ./uploads:/app/uploads
+    ports:
+      - "8000:8000"
+    networks:
+      - dutytracker_network
+    restart: unless-stopped
+
+  bot:
+    build: .
+    container_name: mapv12_bot
+    command: ["python", "bot.py"]
+    env_file:
+      - .env.prod
+    environment:
+      MAP_API_URL: "http://web:8000"
+    volumes:
+      - ./app.db:/app/app.db
+    depends_on:
+      - web
+    networks:
+      - dutytracker_network
+    restart: unless-stopped
+  worker:
+    build: .
+    container_name: mapv12_worker
+    environment:
+      APP_ENV: production
+      DATABASE_URI: postgresql+psycopg2://${POSTGRES_USER:-mapv12}:${POSTGRES_PASSWORD:-mapv12_password}@db:5432/${POSTGRES_DB:-mapv12}
+      REDIS_URL: redis://redis:6379/0
+      REALTIME_REDIS_CHANNEL: ${REALTIME_REDIS_CHANNEL:-mapv12:realtime}
+      ENABLE_INTERNAL_SCHEDULERS: 0
+      DUTY_SCHEDULER_INTERVAL_SEC: ${DUTY_SCHEDULER_INTERVAL_SEC:-30}
+      TRACKER_ALERTS_INTERVAL_SEC: ${TRACKER_ALERTS_INTERVAL_SEC:-10}
+      SCHEDULER_LOCK_KEY: ${SCHEDULER_LOCK_KEY:-mapv12:schedulers:lock}
+      SCHEDULER_LOCK_TTL_SEC: ${SCHEDULER_LOCK_TTL_SEC:-60}
+    command: ["sh", "deploy/entrypoint_worker.sh"]
+    volumes:
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - dutytracker_network
+    restart: unless-stopped
+
+
+  proxy:
+    image: dperson/torproxy
+    container_name: dutytracker_proxy
+    ports:
+      - "9050:9050"   # SOCKS5-прокси для маршрутизации трафика
+      - "9051:9051"   # Управляющий порт (опционально)
+    environment:
+      - TOR_MAX_CIRCUIT_DIRTINESS=30   # Периодическая смена выходных узлов
+    networks:
+      - dutytracker_network
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  dutytracker_network:
+    driver: bridge
+
+volumes:
+  mapv12_redisdata:
+

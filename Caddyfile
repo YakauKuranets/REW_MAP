@@ -1,0 +1,17 @@
+:8080 {
+    # Reverse-proxy Command Center (Flask) + WebSocket realtime server under one public origin.
+    # HTTP:  http://localhost:8080
+    # WS:    ws://localhost:8080/ws?token=...
+
+    @ws path /ws*
+    reverse_proxy @ws 127.0.0.1:8765 {
+        # Preserve external scheme from Cloudflare Tunnel (so Flask can build https links)
+        header_up X-Forwarded-Proto {http.request.header.X-Forwarded-Proto}
+        header_up X-Forwarded-Host  {http.request.header.Host}
+    }
+
+    reverse_proxy 127.0.0.1:5000 {
+        header_up X-Forwarded-Proto {http.request.header.X-Forwarded-Proto}
+        header_up X-Forwarded-Host  {http.request.header.Host}
+    }
+}
