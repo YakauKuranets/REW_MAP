@@ -1,0 +1,57 @@
+/* admin_objects.css
+
+Лёгкая страница «Объекты»: импорт/экспорт и быстрые действия.
+Стили минимальные, чтобы не ломать общий стиль.
+*/
+
+.adm-topbar{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 14px;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  position:sticky;
+  top:0;
+  background:rgba(15,18,22,0.92);
+  backdrop-filter: blur(8px);
+  z-index:10;
+}
+
+.adm-topbar__left{ display:flex; gap:12px; align-items:center; }
+.adm-topbar__title .h1{ font-size:18px; font-weight:700; }
+.adm-topbar__title .sub{ font-size:12px; opacity:0.75; }
+
+.adm-topbar__right{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+
+.adm-tools{ display:grid; gap:10px; padding:14px; }
+.adm-card{
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;
+  padding:12px;
+  background:rgba(20,24,30,0.65);
+}
+
+.adm-card .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.adm-card .row .input{ min-width:220px; }
+
+.adm-table{ width:100%; border-collapse: collapse; }
+.adm-table th,.adm-table td{ padding:8px 10px; border-bottom:1px solid rgba(255,255,255,0.06); vertical-align:middle; }
+.adm-table th{ text-align:left; font-size:12px; opacity:0.75; }
+
+.adm-badge{ display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; background:rgba(255,255,255,0.08); }
+
+.adm-actions{ display:flex; gap:6px; flex-wrap:wrap; }
+
+.small-muted{ font-size:12px; opacity:0.75; }
+
+@media (max-width: 700px){
+  .adm-topbar{ align-items:flex-start; flex-direction:column; }
+  .adm-topbar__right{ width:100%; justify-content:flex-start; }
+  .adm-card .row .input{ min-width: 160px; flex: 1; }
+}
+
+.row-highlight{
+  box-shadow: inset 0 0 0 2px rgba(56,189,248,0.85);
+  background: rgba(56,189,248,0.08);
+}

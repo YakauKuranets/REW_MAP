@@ -1,0 +1,27 @@
+:root{
+  --svc-card-bg: rgba(0,0,0,.22);
+}
+body.admin { background: radial-gradient(1200px 600px at 10% 0%, rgba(0,160,255,.18), transparent 60%), var(--admin-bg, #0b1220); }
+.svc-wrap { padding: 14px; }
+.svc-grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+@media (min-width: 1100px){ .svc-grid { grid-template-columns: 1fr 1fr; } .svc-grid > .svc-card:last-child{ grid-column: 1 / -1; } }
+.svc-card { border: 1px solid rgba(255,255,255,.12); border-radius: 14px; background: rgba(15, 24, 38, .72); box-shadow: 0 12px 30px rgba(0,0,0,.25); overflow: hidden; }
+.svc-card__head { padding: 12px 12px 10px; border-bottom: 1px solid rgba(255,255,255,.10); }
+.svc-card__title { font-weight: 700; display:flex; gap:10px; align-items:center; }
+.svc-card__body { padding: 12px; }
+.svc-row { display:flex; justify-content: space-between; gap: 10px; align-items: baseline; margin: 6px 0; }
+.svc-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace; font-size: 12px; opacity: .95; }
+.svc-hint { opacity: .72; font-size: 12px; margin-top: 10px; }
+.svc-table { width: 100%; border-collapse: collapse; }
+.svc-table th, .svc-table td { padding: 8px 8px; border-bottom: 1px solid rgba(255,255,255,.10); vertical-align: top; }
+.svc-table th { text-align: left; font-size: 12px; opacity: .72; font-weight: 600; }
+.svc-table td { font-size: 13px; }
+.svc-actions { display:flex; gap:8px; justify-content:flex-end; }
+.svc-pill { display:inline-flex; gap:6px; align-items:center; padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid rgba(255,255,255,.14); }
+.svc-pill--pending { background: rgba(255, 193, 7, .12); }
+.svc-pill--approved, .svc-pill--officer, .svc-pill--admin { background: rgba(46, 204, 113, .12); }
+.svc-pill--denied, .svc-pill--guest { background: rgba(231, 76, 60, .10); }
+.svc-pill--used { background: rgba(46, 204, 113, .10); }
+.svc-pill--expired { background: rgba(231, 76, 60, .10); }
+.svc-pill--active { background: rgba(0, 160, 255, .10); }
+.svc-select { width: 100%; }

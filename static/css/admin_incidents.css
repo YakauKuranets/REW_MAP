@@ -1,0 +1,119 @@
+/* admin_incidents.css — стили для списка оперативных инцидентов
+   Использует переменные и миксы из admin_common.css. */
+
+.inc-card {
+  background: var(--card);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+}
+
+/* Подсветка карточки при наведении */
+.inc-card:hover {
+  background: color-mix(in srgb, var(--card) 80%, var(--admin-soft) 20%);
+}
+
+.inc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.inc-title {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70%;
+}
+
+.inc-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* Общие свойства для тегов */
+.tag {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--admin-border);
+  color: var(--admin-muted);
+  background: color-mix(in srgb, var(--admin-soft) 100%, transparent);
+}
+
+/* Статусные теги */
+.tag-status-new {
+  border-color: color-mix(in srgb, var(--admin-amber) 40%, var(--admin-border));
+  color: color-mix(in srgb, var(--admin-amber) 90%, white);
+  background: color-mix(in srgb, var(--admin-amber) 16%, transparent);
+}
+.tag-status-assigned {
+  border-color: color-mix(in srgb, var(--info) 40%, var(--admin-border));
+  color: color-mix(in srgb, var(--info) 90%, white);
+  background: color-mix(in srgb, var(--info) 16%, transparent);
+}
+.tag-status-enroute {
+  border-color: color-mix(in srgb, var(--info) 40%, var(--admin-border));
+  color: color-mix(in srgb, var(--info) 90%, white);
+  background: color-mix(in srgb, var(--info) 16%, transparent);
+}
+.tag-status-on_scene {
+  border-color: color-mix(in srgb, var(--success) 40%, var(--admin-border));
+  color: color-mix(in srgb, var(--success) 90%, white);
+  background: color-mix(in srgb, var(--success) 16%, transparent);
+}
+.tag-status-resolved {
+  border-color: color-mix(in srgb, var(--success) 40%, var(--admin-border));
+  color: color-mix(in srgb, var(--success) 90%, white);
+  background: color-mix(in srgb, var(--success) 16%, transparent);
+}
+.tag-status-closed {
+  border-color: var(--admin-border);
+  color: var(--admin-muted);
+  background: color-mix(in srgb, var(--admin-soft) 100%, transparent);
+}
+
+/* Приоритетные теги */
+.tag-priority-1 {
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--admin-border));
+  color: color-mix(in srgb, var(--danger) 90%, white);
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+}
+.tag-priority-2 {
+  border-color: color-mix(in srgb, var(--admin-amber) 45%, var(--admin-border));
+  color: color-mix(in srgb, var(--admin-amber) 90%, white);
+  background: color-mix(in srgb, var(--admin-amber) 16%, transparent);
+}
+.tag-priority-3 {
+  border-color: color-mix(in srgb, var(--info) 45%, var(--admin-border));
+  color: color-mix(in srgb, var(--info) 90%, white);
+  background: color-mix(in srgb, var(--info) 16%, transparent);
+}
+.tag-priority-4 {
+  border-color: color-mix(in srgb, var(--secondary) 45%, var(--admin-border));
+  color: color-mix(in srgb, var(--secondary) 90%, white);
+  background: color-mix(in srgb, var(--secondary) 16%, transparent);
+}
+.tag-priority-5 {
+  border-color: var(--admin-border);
+  color: var(--admin-muted);
+  background: color-mix(in srgb, var(--admin-soft) 100%, transparent);
+}
+
+.inc-desc {
+  color: var(--admin-muted);
+  font-size: 12px;
+}
+
+.inc-meta {
+  font-size: 11px;
+  color: var(--admin-muted);
+}

@@ -1,0 +1,71 @@
+/* admin_devices.css — стили списка устройств (поверх admin_common.css) */
+
+.dev-card{
+  background: var(--card);
+  border:1px solid var(--admin-border);
+  border-radius:14px;
+  padding:10px 12px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.dev-card.stale{
+  border-color: color-mix(in srgb, var(--admin-amber) 45%, var(--admin-border));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--admin-amber) 14%, transparent) inset;
+}
+
+.dev-card.revoked{
+  border-color: color-mix(in srgb, var(--admin-danger) 55%, var(--admin-border));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--admin-danger) 18%, transparent) inset;
+}
+
+.dev-left{ flex:1; min-width:0; }
+
+.dev-title{ display:flex; align-items:center; gap:10px; font-weight:800; }
+.dev-link{ color: inherit; text-decoration:none; }
+.dev-link:hover{ text-decoration:underline; }
+
+.dev-title .tag{
+  font-size:12px;
+  padding:2px 8px;
+  border-radius:999px;
+  border:1px solid var(--admin-border);
+  color: var(--admin-muted);
+  background: color-mix(in srgb, var(--admin-soft) 100%, transparent);
+}
+
+.tag.ok{
+  border-color: color-mix(in srgb, var(--success) 32%, var(--admin-border));
+  color: color-mix(in srgb, var(--success) 92%, white);
+  background: color-mix(in srgb, var(--success) 14%, transparent);
+}
+
+.tag.warn{
+  border-color: color-mix(in srgb, var(--admin-amber) 34%, var(--admin-border));
+  color: color-mix(in srgb, var(--admin-amber) 95%, white);
+  background: color-mix(in srgb, var(--admin-amber) 14%, transparent);
+}
+
+.tag.bad{
+  border-color: rgba(239,68,68,0.55);
+  color: rgba(239,68,68,0.95);
+  background: rgba(239,68,68,0.12);
+}
+
+.dev-meta{ margin-top:6px; color: var(--admin-muted); font-size: 12px; line-height:1.35; }
+.dev-meta b{ color: inherit; }
+
+.dev-actions{ display:flex; gap:8px; align-items:flex-start; flex-wrap:wrap; justify-content:flex-end; }
+
+
+/* Stage18.1 Recommendations chips */
+.dev-recs{
+  margin-top:6px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.dev-recs .adm-chip{
+  font-size:11.5px;
+}

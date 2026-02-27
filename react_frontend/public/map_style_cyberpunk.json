@@ -1,0 +1,95 @@
+{
+  "version": 8,
+  "name": "Cyberpunk Offline Belarus",
+  "sources": {
+    "belarus_offline": {
+      "type": "vector",
+      "url": "pmtiles:///belarus.pmtiles"
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "#050505"
+      }
+    },
+    {
+      "id": "water",
+      "type": "fill",
+      "source": "belarus_offline",
+      "source-layer": "water",
+      "paint": {
+        "fill-color": "#0a1128",
+        "fill-opacity": 1
+      }
+    },
+    {
+      "id": "roads",
+      "type": "line",
+      "source": "belarus_offline",
+      "source-layer": "transportation",
+      "paint": {
+        "line-color": "#1A56DB",
+        "line-opacity": 0.5,
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          5,
+          0.5,
+          10,
+          1.2,
+          14,
+          2.6,
+          18,
+          5
+        ]
+      }
+    },
+    {
+      "id": "3d-buildings-cyberpunk",
+      "type": "fill-extrusion",
+      "source": "belarus_offline",
+      "source-layer": "building",
+      "minzoom": 14,
+      "paint": {
+        "fill-extrusion-color": "#0a111a",
+        "fill-extrusion-height": [
+          "coalesce",
+          ["get", "render_height"],
+          ["get", "height"],
+          12
+        ],
+        "fill-extrusion-base": [
+          "coalesce",
+          ["get", "render_min_height"],
+          ["get", "min_height"],
+          0
+        ],
+        "fill-extrusion-opacity": 0.85
+      }
+    },
+    {
+      "id": "3d-buildings-cyan-outline",
+      "type": "line",
+      "source": "belarus_offline",
+      "source-layer": "building",
+      "minzoom": 14,
+      "paint": {
+        "line-color": "#00F0FF",
+        "line-opacity": 0.45,
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          14,
+          0.3,
+          18,
+          1.1
+        ]
+      }
+    }
+  ]
+}

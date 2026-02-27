@@ -1,0 +1,233 @@
+/* ============================================================
+   admin_common.css — общий UI-kit для всех админ-страниц v3
+   ============================================================ */
+
+/* ── Admin body variables ───────────────────────────────────── */
+body.admin:not(.dark) {
+  --admin-border:    rgba(15,23,42,.09);
+  --admin-soft:      rgba(15,23,42,.03);
+  --admin-muted:     rgba(15,23,42,.60);
+  --admin-amber:     #b45309;
+  --skel-base:       rgba(15,23,42,.06);
+  --skel-shine:      rgba(15,23,42,.10);
+}
+body.admin.dark {
+  --admin-border:    rgba(255,255,255,.10);
+  --admin-soft:      rgba(255,255,255,.05);
+  --admin-muted:     rgba(220,235,255,.72);
+  --admin-amber:     #fbbf24;
+  --bg:              #070e1c;
+  --bg-alt:          #0c1526;
+  --card:            #101e33;
+  --muted:           #7d90aa;
+  --skel-base:       rgba(255,255,255,.07);
+  --skel-shine:      rgba(255,255,255,.13);
+  color:             #dce8f5;
+}
+
+body.admin { background: var(--bg); color: inherit; }
+body.admin .muted { color: var(--admin-muted) !important; }
+
+/* ── Адаптация цвета danger для темы ──────────────────────── */
+body.admin:not(.dark) { --admin-danger: var(--danger, #dc2626); }
+body.admin.dark       { --admin-danger: var(--warn, #fbbf24); }
+
+/* ── Sticky header ─────────────────────────────────────────── */
+.adm-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 16px;
+  background: color-mix(in srgb, var(--card) 94%, transparent);
+  border-bottom: 1px solid var(--admin-border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 var(--admin-border);
+}
+
+.adm-brand          { display: flex; gap: 10px; align-items: center; min-width: 200px; }
+.adm-brand__logo    { font-size: 22px; }
+.adm-brand__title   { font-weight: 800; font-size: 15px; line-height: 1.2; }
+.adm-brand__sub     { font-size: 11px; opacity: .75; }
+
+.adm-search         { flex: 1; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.adm-search i       { opacity: .65; flex-shrink: 0; }
+.adm-search .input  { width: min(500px, 58vw); }
+
+.adm-chk { display: flex; align-items: center; gap: 6px; user-select: none; white-space: nowrap; font-size: 13px; }
+
+.adm-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.adm-actions .btn  { white-space: nowrap; }
+
+/* ── WebSocket status pill ─────────────────────────────────── */
+.adm-ws {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-soft);
+  font-size: 11px;
+  color: var(--admin-muted);
+  user-select: none;
+  white-space: nowrap;
+}
+.adm-ws__dot {
+  width: 7px; height: 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--admin-muted) 40%, transparent);
+  transition: background .3s;
+}
+.adm-ws.is-on  .adm-ws__dot { background: var(--success, #059669); }
+.adm-ws.is-bad .adm-ws__dot { background: var(--admin-amber); }
+
+/* ── Main content ──────────────────────────────────────────── */
+.adm-main { padding: 14px 16px; }
+
+/* ── KPI grid ──────────────────────────────────────────────── */
+.adm-kpi {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.adm-kpi__item {
+  background: var(--card);
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  transition: box-shadow .2s;
+}
+.adm-kpi__item:hover { box-shadow: 0 4px 14px rgba(0,0,0,.10); }
+.adm-kpi__lbl { color: var(--admin-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.adm-kpi__val { font-size: 24px; font-weight: 800; margin-top: 6px; line-height: 1; }
+
+/* ── Alert bar ─────────────────────────────────────────────── */
+.adm-alertbar {
+  border: 1px solid color-mix(in srgb, var(--admin-amber) 32%, var(--admin-border));
+  background: color-mix(in srgb, var(--admin-amber) 10%, transparent);
+  padding: 10px 14px;
+  border-radius: 14px;
+  margin: 0 0 12px;
+  font-size: 13px;
+}
+
+/* ── List & cards ──────────────────────────────────────────── */
+.adm-list { display: flex; flex-direction: column; gap: 8px; }
+
+.adm-card {
+  background: var(--card);
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  transition: box-shadow .2s, border-color .2s;
+}
+.adm-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.09); }
+
+/* ── Chips ─────────────────────────────────────────────────── */
+.adm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--admin-border);
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--admin-soft);
+  white-space: nowrap;
+}
+.adm-chip--crit {
+  background: color-mix(in srgb, var(--danger, #dc2626) 12%, transparent);
+  border-color: color-mix(in srgb, var(--danger, #dc2626) 28%, var(--admin-border));
+  color: var(--admin-danger);
+}
+.adm-chip--ok {
+  background: color-mix(in srgb, var(--success, #059669) 12%, transparent);
+  border-color: color-mix(in srgb, var(--success, #059669) 28%, var(--admin-border));
+}
+.adm-chip--hint {
+  background: color-mix(in srgb, var(--admin-amber) 12%, var(--admin-soft));
+  border-color: color-mix(in srgb, var(--admin-amber) 26%, var(--admin-border));
+}
+
+/* ── Skeleton loading ──────────────────────────────────────── */
+.skel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-soft);
+}
+.skel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, var(--skel-shine), transparent);
+  animation: skelShimmer 1.3s infinite;
+}
+.skel-line {
+  height: 10px;
+  border-radius: 999px;
+  margin: 10px 14px;
+  background: var(--skel-base);
+}
+.skel-line.tall  { height: 15px; }
+.skel-line.small { height: 7px; }
+@keyframes skelShimmer {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+
+/* ── Toast ─────────────────────────────────────────────────── */
+.adm-toast {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  background: color-mix(in srgb, var(--card) 94%, transparent);
+  border: 1px solid var(--admin-border);
+  padding: 12px 16px;
+  border-radius: 14px;
+  display: none;
+  max-width: min(460px, 92vw);
+  z-index: 9999;
+  box-shadow: 0 6px 24px rgba(0,0,0,.15);
+  font-size: 13px;
+  backdrop-filter: blur(8px);
+}
+
+/* ── Recommendations ───────────────────────────────────────── */
+.adm-recs {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px dashed var(--admin-border);
+  border-radius: 12px;
+  background: var(--admin-soft);
+}
+.adm-recs__lbl {
+  font-size: 12px;
+  opacity: .85;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+.adm-recs__chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 920px) {
+  .adm-kpi  { grid-template-columns: repeat(2, minmax(130px, 1fr)); }
+  .adm-search .input { width: 100%; }
+}
+@media (max-width: 640px) {
+  .adm-header { flex-wrap: wrap; }
+  .adm-kpi    { grid-template-columns: repeat(2, 1fr); }
+}
