@@ -37,5 +37,8 @@ elasticsearch==8.17.0
 opensearch-py==2.7.0
 requests>=2.31.0
 pyahocorasick==2.0.0
-cryptography==42.0.5
+cryptography==41.0.7
 requests[socks]>=2.31.0
+neo4j==5.14.1
+ExifRead==3.0.0
+Pillow==9.5.0

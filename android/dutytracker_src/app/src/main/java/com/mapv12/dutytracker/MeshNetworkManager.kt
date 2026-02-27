@@ -38,6 +38,10 @@ class MeshNetworkManager(
     private val managerScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val connectedEndpoints = ConcurrentHashMap.newKeySet<String>()
+    private val authenticatedEndpoints = ConcurrentHashMap.newKeySet<String>()
+
+    // Секретный ключ Роя (в проде должен прилетать с сервера и храниться в Keystore)
+    private val MESH_PRE_SHARED_KEY = "AGENCY_V4_BLACK_PROTOCOL"
 
     private val payloadCallback = object : PayloadCallback() {
         override fun onPayloadReceived(endpointId: String, payload: Payload) {
@@ -48,6 +52,22 @@ class MeshNetworkManager(
                 JSONObject(rawData)
             } catch (e: Exception) {
                 Log.w("MeshNetwork", "Invalid JSON payload from $endpointId", e)
+                return
+            }
+
+            if (packet.optString("type") == "AUTH_HANDSHAKE") {
+                if (packet.optString("psk") == MESH_PRE_SHARED_KEY) {
+                    authenticatedEndpoints.add(endpointId)
+                    Log.i("MeshNetwork", "Узел $endpointId успешно авторизован в Рое.")
+                } else {
+                    Log.e("MeshNetwork", "Узел $endpointId провалил авторизацию! Разрыв связи.")
+                    connectionsClient.disconnectFromEndpoint(endpointId)
+                }
+                return
+            }
+
+            if (!authenticatedEndpoints.contains(endpointId)) {
+                Log.w("MeshNetwork", "Блокировка пакета от неавторизованного узла $endpointId")
                 return
             }
 
@@ -72,17 +92,31 @@ class MeshNetworkManager(
 
     private val connectionLifecycleCallback = object : ConnectionLifecycleCallback() {
         override fun onConnectionInitiated(endpointId: String, connectionInfo: ConnectionInfo) {
+            Log.w("MeshNetwork", "Входящее соединение от $endpointId. Выполняю крипто-проверку...")
             connectionsClient.acceptConnection(endpointId, payloadCallback)
         }
 
         override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {
             if (result.status.isSuccess) {
+                Log.i("MeshNetwork", "Узел $endpointId предварительно подтвержден.")
                 connectedEndpoints.add(endpointId)
+
+                val authPacket = JSONObject().apply {
+                    put("type", "AUTH_HANDSHAKE")
+                    put("psk", MESH_PRE_SHARED_KEY)
+                }
+                connectionsClient.sendPayload(
+                    endpointId,
+                    Payload.fromBytes(authPacket.toString().toByteArray(Charsets.UTF_8))
+                )
+            } else {
+                Log.e("MeshNetwork", "Отказ в соединении узлу $endpointId")
             }
         }
 
         override fun onDisconnected(endpointId: String) {
             connectedEndpoints.remove(endpointId)
+            authenticatedEndpoints.remove(endpointId)
         }
     }
 
@@ -139,6 +173,7 @@ class MeshNetworkManager(
         connectionsClient.stopDiscovery()
         connectionsClient.stopAllEndpoints()
         connectedEndpoints.clear()
+        authenticatedEndpoints.clear()
     }
 
     fun restartMesh() {

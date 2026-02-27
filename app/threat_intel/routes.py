@@ -9,7 +9,8 @@ from app.auth.decorators import jwt_or_api_required
 from app.threat_intel.leak_analyzer import LeakAnalyzer
 from app.darknet.models import DarknetPost
 from app.extensions import db
-from app.threat_intel.attribution_engine import enrich_actor_profile, kraken_graph
+from app.analytics.relation_engine import graph_db
+from app.threat_intel.asset_risk_graph import enrich_asset_risk
 import logging
 
 logger = logging.getLogger(__name__)
@@ -98,13 +99,21 @@ def enrich_actor():
     if not alias:
         return jsonify({'error': 'alias is required'}), 400
 
+    email = (payload.get('email') or '').strip()
+
+    async def _enrich_and_get():
+        if email:
+            await graph_db.add_relation(alias, "THREAT_ACTOR", email, "EMAIL", "HAS_EMAIL", weight=0.9)
+        result = await graph_db.get_object_relations(alias)
+        return {"alias": alias, "connections": result.get("connections", [])}
+
     try:
-        profile = asyncio.run(enrich_actor_profile(alias))
+        profile = asyncio.run(_enrich_and_get())
     except RuntimeError:
         loop = asyncio.new_event_loop()
         try:
             asyncio.set_event_loop(loop)
-            profile = loop.run_until_complete(enrich_actor_profile(alias))
+            profile = loop.run_until_complete(_enrich_and_get())
         finally:
             loop.close()
             asyncio.set_event_loop(None)
@@ -116,5 +125,44 @@ def enrich_actor():
 @jwt_or_api_required
 def get_actor_profile(alias):
     """Возвращает текущий профиль актора из графа атрибуции."""
-    return jsonify(kraken_graph.get_actor_profile(alias))
+    try:
+        result = asyncio.run(graph_db.get_object_relations(alias))
+        profile = {"alias": alias, "connections": result.get("connections", [])}
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        try:
+            asyncio.set_event_loop(loop)
+            result = loop.run_until_complete(graph_db.get_object_relations(alias))
+            profile = {"alias": alias, "connections": result.get("connections", [])}
+        finally:
+            loop.close()
+            asyncio.set_event_loop(None)
 
+    return jsonify(profile)
+
+
+
+@threat_bp.route('/assets/risk/enrich', methods=['POST'])
+@jwt_or_api_required
+def enrich_assets_risk():
+    """Запускает обогащение графа рисков для owned-активов (домены компании)."""
+    payload = request.get_json(silent=True) or {}
+    owned_domains = payload.get('owned_domains') or []
+
+    if not isinstance(owned_domains, list) or not all(isinstance(d, str) and d.strip() for d in owned_domains):
+        return jsonify({'error': 'owned_domains must be a non-empty list of domains'}), 400
+
+    normalized = [d.strip().lower() for d in owned_domains]
+
+    try:
+        profile = asyncio.run(enrich_asset_risk(normalized))
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        try:
+            asyncio.set_event_loop(loop)
+            profile = loop.run_until_complete(enrich_asset_risk(normalized))
+        finally:
+            loop.close()
+            asyncio.set_event_loop(None)
+
+    return jsonify(profile)

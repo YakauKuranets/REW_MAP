@@ -1,5 +1,5 @@
 use axum::{
-    extract::State,
+    extract::{DefaultBodyLimit, State},
     http::{HeaderMap, StatusCode},
     response::{IntoResponse, Response},
     routing::post,
@@ -11,6 +11,8 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use thiserror::Error;
 use tracing::{error, info, warn};
+use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
+use tower_http::limit::RequestBodyLimitLayer;
 
 #[derive(Deserialize, Serialize, Debug)]
 struct TelemetryPayload {
@@ -171,9 +173,27 @@ async fn main() -> Result<(), NodeError> {
         node_token,
     });
 
+    // Настраиваем Rate Limiting: максимум 10 запросов в секунду с одного IP,
+    // с возможностью пикового всплеска (burst) до 50 пакетов.
+    let governor_conf = Box::new(
+        GovernorConfigBuilder::default()
+            .per_second(10)
+            .burst_size(50)
+            .finish()
+            .unwrap(),
+    );
+
+    // Бронируем роутер
     let app = Router::new()
         .route("/api/duty/telemetry/fast", post(handle_telemetry))
-        .with_state(state);
+        .with_state(state)
+        // 1. Защита от JSON-бомб (строгий лимит тела запроса: 64 KB)
+        .layer(DefaultBodyLimit::disable())
+        .layer(RequestBodyLimitLayer::new(64 * 1024))
+        // 2. Защита от DDoS (Rate Limiting)
+        .layer(GovernorLayer {
+            config: Box::leak(governor_conf),
+        });
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
         .await

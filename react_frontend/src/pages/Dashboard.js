@@ -9,6 +9,7 @@ import IncidentChatPanel from '../components/IncidentChatPanel';
 import PendingRequestsPanel from '../components/PendingRequestsPanel';
 import SmartFilterPanel from '../components/SmartFilterPanel';
 import CyberHUD from '../components/CyberHUD';
+import AssetRiskGraphPanel from '../components/AssetRiskGraphPanel';
 import useMapStore from '../store/useMapStore';
 
 export default function Dashboard() {
@@ -18,6 +19,7 @@ export default function Dashboard() {
   const [theme, setTheme] = useState('dark');
   const [flyToTarget, setFlyToTarget] = useState(null);
   const [activeChatIncidentId, setActiveChatIncidentId] = useState(null);
+  const [assetRiskData] = useState({ nodes: [], edges: [] });
   const [filters, setFilters] = useState({
     showAgents: true,
     showCameras: true,
@@ -58,7 +60,12 @@ export default function Dashboard() {
       case 'agents':
         return <div className={`p-10 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Раздел списка сотрудников (в разработке)</div>;
       case 'analytics':
-        return <div className={`p-10 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Раздел аналитики и графиков (в разработке)</div>;
+        return (
+          <div className="p-6">
+            <h2 className={`mb-4 font-mono text-sm ${theme === 'dark' ? 'text-cyan-300' : 'text-slate-700'}`}>ASSET RISK GRAPH</h2>
+            <AssetRiskGraphPanel riskData={assetRiskData} />
+          </div>
+        );
       default:
         return null;
     }

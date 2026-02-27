@@ -13,7 +13,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SupportFactory
 
 /**
@@ -28,18 +27,19 @@ class App : Application() {
         super.onCreate()
 
         // Room DB — offline queue + event journal (encrypted with SQLCipher)
-        val dbPassphrase = SecureStores.getOrCreateDbPassphrase(applicationContext)
-        val passphraseBytes = SQLiteDatabase.getBytes(dbPassphrase.toCharArray())
-        val factory = SupportFactory(passphraseBytes)
+        val dbPassphrase = SecureStores.getOrCreateDbPassphrase(applicationContext).toByteArray()
+        val factory = SupportFactory(dbPassphrase)
 
         _db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java,
-            "dutytracker.db"
+            "dutytracker_secure.db"
         )
             .openHelperFactory(factory)
             .fallbackToDestructiveMigration()
             .build()
+
+        dbPassphrase.fill(0)
 
         // Watchdog: перезапускает трекинг если сервис убит системой
         runCatching { WatchdogWorker.ensureScheduled(applicationContext) }

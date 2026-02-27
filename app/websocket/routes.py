@@ -8,6 +8,7 @@ from flask_sock import Sock
 
 from app.extensions import redis_client
 from app.realtime.tokens import verify_websocket_token
+from app.security.aegis_soar import block_ip_sync
 
 ws_bp = Blueprint('ws', __name__)
 sock = Sock()
@@ -17,11 +18,17 @@ sock = Sock()
 def ws_task(ws):
     token = ws.receive(timeout=5)
     if not token:
+        ip = (getattr(ws, "environ", {}) or {}).get("REMOTE_ADDR")
+        if ip:
+            block_ip_sync(ip, "WebSocket token missing")
         ws.close(reason='Token missing')
         return
 
     payload = verify_websocket_token(token)
     if not payload:
+        ip = (getattr(ws, "environ", {}) or {}).get("REMOTE_ADDR")
+        if ip:
+            block_ip_sync(ip, "WebSocket invalid token brute-force")
         ws.close(reason='Invalid token')
         return
 
