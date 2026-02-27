@@ -7,7 +7,7 @@
 
 from __future__ import annotations
 
-from flask import Response, jsonify
+from compat_flask import Response, jsonify
 
 from ..helpers import require_admin
 from ..services.requests_service import (

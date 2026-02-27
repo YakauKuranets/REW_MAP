@@ -6,7 +6,7 @@
 
 import math
 from datetime import datetime, timedelta
-from flask import jsonify, make_response, request
+from compat_flask import jsonify, make_response, request
 
 from . import bp
 from ..services.analytics_service import build_summary, build_audit_log, build_period_text

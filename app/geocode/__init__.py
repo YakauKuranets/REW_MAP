@@ -8,7 +8,7 @@ Blueprint, чтобы сохранить структуру приложения
 префиксом `/api` в `create_app()`.
 """
 
-from flask import Blueprint
+from compat_flask import Blueprint
 
 bp = Blueprint("geocode", __name__)
 

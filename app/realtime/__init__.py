@@ -7,7 +7,7 @@
 Токен выдаётся только администратору (require_admin).
 """
 
-from flask import Blueprint
+from compat_flask import Blueprint
 
 
 bp = Blueprint("realtime", __name__, url_prefix="/api/realtime")

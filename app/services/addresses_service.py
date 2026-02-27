@@ -13,7 +13,7 @@ import uuid
 from io import StringIO
 from typing import Any, Dict, List, Optional, Tuple
 
-from flask import current_app
+from compat_flask import current_app
 from sqlalchemy import or_
 
 from ..extensions import db

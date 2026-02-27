@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from flask import jsonify
+from compat_flask import jsonify
 
 from . import bp
 from ..helpers import require_admin

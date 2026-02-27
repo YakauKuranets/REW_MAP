@@ -8,7 +8,7 @@ Blueprint для администраторских маршрутов.
 необходимо).
 """
 
-from flask import Blueprint
+from compat_flask import Blueprint
 
 # Создаём экземпляр Blueprint. Имя 'admin' будет использовано при
 # регистрации маршрутов; префикс задаётся при регистрации в create_app.

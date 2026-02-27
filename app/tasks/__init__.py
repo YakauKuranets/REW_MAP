@@ -17,6 +17,9 @@ from app.tasks import diagnostics_scans as diagnostics_scans_tasks  # noqa: F401
 from app.tasks import threat_intel_tasks as threat_intel_tasks  # noqa: F401
 from app.tasks import siem_tasks as siem_tasks  # noqa: F401
 from app.tasks import diagnostics_tasks as diagnostics_tasks  # noqa: F401
+from app.tasks import ai_mutation_tasks as ai_mutation_tasks  # noqa: F401
+from app.tasks import mutation_testing as mutation_testing_tasks  # noqa: F401
+from app.tasks import operational_tasks as operational_tasks  # noqa: F401
 
 
 @celery_app.task(bind=True)

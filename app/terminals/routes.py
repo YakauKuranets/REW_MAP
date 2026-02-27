@@ -6,7 +6,7 @@ import ftplib
 from typing import Any, Dict
 
 import requests
-from flask import jsonify, request
+from compat_flask import jsonify, request
 from requests.auth import HTTPDigestAuth
 
 from . import bp

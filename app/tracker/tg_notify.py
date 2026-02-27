@@ -4,7 +4,7 @@ import hashlib
 from datetime import datetime, timedelta
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
-from flask import current_app
+from compat_flask import current_app
 
 from ..extensions import db
 from ..integrations.telegram_sender import send_telegram_message

@@ -27,13 +27,13 @@ class User(db.Model):
 
     def set_password(self, password: str) -> None:
         """Устанавливает хеш пароля."""
-        from werkzeug.security import generate_password_hash
+        from compat_werkzeug_security import generate_password_hash
 
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password: str) -> bool:
         """Проверяет пароль."""
-        from werkzeug.security import check_password_hash
+        from compat_werkzeug_security import check_password_hash
 
         return check_password_hash(self.password_hash, password)
 

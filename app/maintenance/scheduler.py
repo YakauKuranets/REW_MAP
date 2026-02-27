@@ -19,7 +19,7 @@ import threading
 import time
 from typing import Optional
 
-from flask import Flask
+from compat_flask import Flask
 
 from ..maintenance.retention import run_retention_cleanup, set_last_retention_status
 

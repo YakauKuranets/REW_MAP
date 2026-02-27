@@ -11,7 +11,7 @@ import json
 import os
 from typing import Any, Dict, List, Optional, Tuple
 
-from flask import current_app
+from compat_flask import current_app
 
 
 def load_addresses() -> Tuple[List[Dict[str, Any]], int]:

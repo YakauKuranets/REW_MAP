@@ -17,7 +17,7 @@ import time
 from typing import Any, Dict, List, Optional
 
 import requests
-from flask import Response, current_app, jsonify, request, session
+from compat_flask import Response, current_app, jsonify, request, session
 
 from ..helpers import require_admin
 from ..audit.logger import log_admin_action

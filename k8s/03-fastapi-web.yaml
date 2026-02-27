@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-backend
+  namespace: dutytracker
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: fastapi-web
+  template:
+    metadata:
+      labels:
+        app: fastapi-web
+    spec:
+      containers:
+      - name: fastapi-web
+        image: playe-cti-core:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - secretRef:
+            name: cti-secrets
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastapi-service
+  namespace: dutytracker
+spec:
+  type: ClusterIP
+  selector:
+    app: fastapi-web
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000

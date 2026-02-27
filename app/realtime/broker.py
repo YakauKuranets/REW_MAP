@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 def get_redis_url() -> str:
     """Return REDIS_URL from Flask config or environment."""
     try:
-        from flask import current_app
+        from compat_flask import current_app
 
         url = (current_app.config.get("REDIS_URL") or "").strip()
         if url:
@@ -45,7 +45,7 @@ def get_redis_url() -> str:
 
 def get_channel() -> str:
     try:
-        from flask import current_app
+        from compat_flask import current_app
 
         channel = (current_app.config.get("REALTIME_REDIS_CHANNEL") or "").strip()
         if channel:
@@ -260,7 +260,7 @@ async def consume_telemetry_save_queue(
         return
 
     try:
-        from flask import current_app
+        from compat_flask import current_app
 
         app_ctx_manager = current_app.app_context()
     except Exception:

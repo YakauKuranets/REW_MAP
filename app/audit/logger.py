@@ -6,7 +6,7 @@ import json
 import hashlib
 from typing import Any, Dict, Optional, Tuple
 
-from flask import request, session
+from compat_flask import request, session
 
 from ..extensions import db
 from ..models import AdminAuditLog

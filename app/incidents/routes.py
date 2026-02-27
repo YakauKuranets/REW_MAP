@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import ValidationError
 
-from flask import request, jsonify, abort, session, current_app, Response
+from compat_flask import request, jsonify, abort, session, current_app, Response
 
 from ..helpers import require_admin
 from ..extensions import db
@@ -25,6 +25,7 @@ from ..realtime.broker import get_broker
 from ..security.rate_limit import check_rate_limit
 from ..models import Incident, IncidentEvent, IncidentAssignment, DutyShift, TrackerDevice, Object
 from ..schemas import IncidentCreateSchema, IncidentChatSendSchema
+from app.db.cockroach_utils import retry_on_serialization_failure
 
 from . import bp
 
@@ -52,6 +53,12 @@ def _rate_ident() -> str:
     ip = (request.headers.get('CF-Connecting-IP') or request.remote_addr or 'ip')
     return f'ip:{ip}'
 
+
+
+
+@retry_on_serialization_failure(max_retries=3, delay=0.5)
+def _commit_incident_write() -> None:
+    db.session.commit()
 
 def _rate_limit_or_429(bucket: str, limit: int, window_seconds: int = 60):
     """Return a Flask response (429) if rate limited, else None."""
@@ -324,7 +331,7 @@ def api_incidents_create() -> tuple[Response, int] | Response:
         created_at=datetime.utcnow(),
     )
     db.session.add(inc)
-    db.session.commit()
+    _commit_incident_write()
 
     # Записываем событие
     ev = IncidentEvent(
@@ -334,7 +341,7 @@ def api_incidents_create() -> tuple[Response, int] | Response:
         ts=inc.created_at,
     )
     db.session.add(ev)
-    db.session.commit()
+    _commit_incident_write()
 
     # Отправляем realtime‑уведомление
     try:

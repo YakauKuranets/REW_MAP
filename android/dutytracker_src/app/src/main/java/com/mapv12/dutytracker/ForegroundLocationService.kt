@@ -19,6 +19,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
 import com.google.gson.Gson
+import com.mapv12.dutytracker.mesh.ReticulumMeshService
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -116,6 +117,7 @@ open class ForegroundLocationService : Service() {
 
     // --- MESH NETWORK ---
     private var meshNetworkManager: MeshNetworkManager? = null
+    private var reticulumMeshService: ReticulumMeshService? = null
     // --------------------
 
     private val callback = object : LocationCallback() {
@@ -195,6 +197,7 @@ open class ForegroundLocationService : Service() {
                         try {
                             val json = gson.toJson(point)
                             meshNetworkManager?.sendDataToNetwork(json)
+                            reticulumMeshService?.broadcastTelemetry(json.toByteArray())
                         } catch (e: Exception) {
                             Log.e("DutyTracker", "Mesh send error", e)
                         }
@@ -229,6 +232,7 @@ open class ForegroundLocationService : Service() {
             ?: DeviceInfoStore.userId(this)
             ?: "UNKNOWN_DEVICE"
         meshNetworkManager = MeshNetworkManager(this, userId)
+        reticulumMeshService = ReticulumMeshService(this).also { it.initializeDarkMesh() }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -444,6 +448,7 @@ open class ForegroundLocationService : Service() {
         StatusStore.setServiceRunning(applicationContext, false)
         meshNetworkManager?.stopAll()
         meshNetworkManager = null
+        reticulumMeshService = null
         stopTracking()
         super.onDestroy()
     }

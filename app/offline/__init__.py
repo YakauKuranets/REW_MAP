@@ -5,7 +5,7 @@
 основного файла функции.
 """
 
-from flask import Blueprint
+from compat_flask import Blueprint
 
 bp = Blueprint('offline', __name__)
 

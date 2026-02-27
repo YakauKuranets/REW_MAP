@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import threading
 
-from flask import Blueprint
+from compat_flask import Blueprint
 from flask_sock import Sock
 
 from app.extensions import redis_client

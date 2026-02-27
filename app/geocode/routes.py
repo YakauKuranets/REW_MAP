@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from flask import jsonify, request, make_response
+from compat_flask import jsonify, request, make_response
 
 from . import bp
 from ..services.geocode_service import geocode

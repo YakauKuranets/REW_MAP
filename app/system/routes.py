@@ -3,7 +3,7 @@ from __future__ import annotations
 import socket
 from typing import List, Set
 
-from flask import jsonify, request, current_app
+from compat_flask import jsonify, request, current_app
 
 from . import bp
 from ..helpers import require_admin

@@ -5,7 +5,7 @@
 отображения в всплывающем списке и позволяют удалить заявку.
 """
 
-from flask import Blueprint
+from compat_flask import Blueprint
 
 bp = Blueprint('requests', __name__)
 

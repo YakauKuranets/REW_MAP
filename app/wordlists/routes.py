@@ -1,6 +1,6 @@
 import os
 
-from flask import Blueprint, jsonify, send_file
+from compat_flask import Blueprint, jsonify, send_file
 
 from app.auth.decorators import jwt_or_api_required
 from app.wordlists.models import Wordlist

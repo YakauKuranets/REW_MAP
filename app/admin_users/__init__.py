@@ -4,7 +4,7 @@
 использование только из защищённого админского интерфейса.
 """
 
-from flask import Blueprint
+from compat_flask import Blueprint
 
 bp = Blueprint("admin_users", __name__, url_prefix="/api/admin/users")
 

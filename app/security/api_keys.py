@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from flask import abort, current_app, request
+from compat_flask import abort, current_app, request
 
 
 @dataclass

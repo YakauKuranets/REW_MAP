@@ -5,7 +5,7 @@
 для создания записей с адресом и связанных камер.
 """
 
-from flask import Blueprint
+from compat_flask import Blueprint
 
 bp = Blueprint('objects', __name__)
 

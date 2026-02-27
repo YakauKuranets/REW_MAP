@@ -6,7 +6,7 @@ Contains best-effort utilities for production operation:
 All routes MUST be protected by require_admin.
 """
 
-from flask import Blueprint
+from compat_flask import Blueprint
 
 bp = Blueprint("maintenance", __name__, url_prefix="/api/admin")
 

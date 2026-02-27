@@ -8,7 +8,7 @@ import json
 from typing import Any, Optional
 from urllib.parse import parse_qsl
 
-from flask import Response, current_app, g, jsonify, request
+from compat_flask import Response, current_app, g, jsonify, request
 
 
 def validate_telegram_init_data(init_data: str, bot_token: str) -> bool:

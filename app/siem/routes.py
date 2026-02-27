@@ -6,7 +6,7 @@ API для управления экспортом в SIEM системы.
 from datetime import datetime, timedelta
 import logging
 
-from flask import Blueprint, request, jsonify
+from compat_flask import Blueprint, request, jsonify
 
 from app.auth.decorators import jwt_or_api_required
 from app.siem.models import SIEMEvent, SIEMExportConfig, db

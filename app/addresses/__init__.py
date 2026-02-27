@@ -6,7 +6,7 @@ Blueprint addresses_bp содержит маршруты для получени
 используется база данных; данные хранятся в JSON‑файле.
 """
 
-from flask import Blueprint
+from compat_flask import Blueprint
 
 bp = Blueprint('addresses', __name__)
 

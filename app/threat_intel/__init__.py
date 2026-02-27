@@ -1,5 +1,5 @@
-"""Threat intel blueprint package."""
+"""Threat intel FastAPI package."""
 
-from .routes import threat_bp as bp
+from .routes import router
 
-__all__ = ["bp"]
+__all__ = ["router"]

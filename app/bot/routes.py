@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional
 
 import requests
 from openai import OpenAI
-from flask import Response, jsonify, request, current_app, render_template, g
+from compat_flask import Response, jsonify, request, current_app, render_template, g
 
 from sqlalchemy.exc import OperationalError
 

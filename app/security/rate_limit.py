@@ -11,7 +11,7 @@ import time
 from dataclasses import dataclass
 from typing import Dict, Optional, Tuple
 
-from flask import current_app
+from compat_flask import current_app
 
 try:
     import redis

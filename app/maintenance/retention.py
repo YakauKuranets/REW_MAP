@@ -15,7 +15,7 @@ import time
 from datetime import datetime, timedelta
 from typing import Any, Dict, List
 
-from flask import current_app
+from compat_flask import current_app
 
 from ..extensions import db
 from ..models import (

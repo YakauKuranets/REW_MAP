@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import logging
 
-from flask import Blueprint, jsonify, request
+from compat_flask import Blueprint, jsonify, request
 
 from ..helpers import require_admin
 from ..models import AdminAuditLog

@@ -15,7 +15,7 @@ import math
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
-from flask import current_app, jsonify, request, render_template
+from compat_flask import current_app, jsonify, request, render_template
 
 from sqlalchemy import desc
 
@@ -24,6 +24,7 @@ from ..extensions import db
 from ..helpers import require_admin, haversine_m
 from ..sockets import broadcast_event_sync
 from ..models import DutyShift, DutyEvent, TrackingSession, TrackingPoint, TrackingStop, BreakRequest, DutyNotification, SosAlert, TrackerDeviceHealth, TrackerDevice
+from app.db.cockroach_utils import retry_on_serialization_failure
 from ..security.api_keys import require_bot_api_key
 from ..security.rate_limit import check_rate_limit
 
@@ -61,6 +62,11 @@ def _bot_rate_limit(bucket: str, limit_key: str, default_limit: int) -> Optional
 # -------------------------
 # Tracking meta helpers
 # -------------------------
+
+@retry_on_serialization_failure(max_retries=3, delay=0.5)
+def _commit_telemetry_write() -> None:
+    db.session.commit()
+
 
 def _tp_meta(tp: Optional[TrackingPoint]) -> Dict[str, Any]:
     """Достаём доп. поля точки из raw_json (без миграций БД)."""
@@ -757,7 +763,7 @@ def api_bot_checkin():
     pt = TrackingPoint(session_id=None, user_id=user_id, ts=_utcnow(), lat=lat, lon=lon, accuracy_m=data.get('accuracy_m'), kind='checkin', raw_json=json.dumps(data, ensure_ascii=False))
     db.session.add(pt)
     _log_event(user_id, sh.id, 'CHECKIN', actor='user', payload={'lat': lat, 'lon': lon, 'note': note})
-    db.session.commit()
+    _commit_telemetry_write()
 
     broadcast_event_sync('checkin', {'user_id': user_id, 'shift_id': sh.id, 'lat': lat, 'lon': lon, 'note': note})
     return jsonify({'ok': True, 'shift_id': sh.id})
@@ -809,7 +815,7 @@ def api_bot_live_location():
 
     _log_event(user_id, sh.id, 'TRACKING_POINT' if is_live else 'LOCATION_POINT', actor='user', payload={'session_id': sess.id if sess else None, 'lat': lat, 'lon': lon})
 
-    db.session.commit()
+    _commit_telemetry_write()
 
     if sess:
         broadcast_event_sync('tracking_point', {'user_id': user_id, 'shift_id': sh.id, 'session_id': sess.id, 'lat': lat, 'lon': lon, 'ts': ts.isoformat()})

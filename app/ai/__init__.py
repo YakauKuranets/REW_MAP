@@ -1,5 +1,3 @@
-from .finetune import prepare_finetune_dataset, run_finetuning
-from .predictive_advisor import PredictiveAdvisor
-from .exploit_generator import ExploitGenerator
+"""Compatibility wrappers for moved AI modules (now in ai_engine.ai)."""
 
-__all__ = ["PredictiveAdvisor", "ExploitGenerator", "prepare_finetune_dataset", "run_finetuning"]
+from ai_engine.ai import *  # noqa: F401,F403

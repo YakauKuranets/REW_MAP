@@ -10,10 +10,12 @@
 from __future__ import annotations
 
 from celery import Celery
-from flask import Flask
+from compat_flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
 import redis
+
+from app.utils.env_loader import settings
 
 # Инициализируем объект SQLAlchemy без привязки к конкретному приложению.
 # Приложение привязывается в create_app() (см. app/__init__.py).
@@ -22,7 +24,7 @@ db = SQLAlchemy()
 # Celery-приложение инициализируется через init_celery(app).
 celery_app = Celery(__name__)
 jwt = JWTManager()
-redis_client = redis.Redis(host="localhost", port=6379, db=1, decode_responses=True)
+redis_client = redis.from_url(settings.redis_url, decode_responses=True)
 
 
 def init_celery(app: Flask) -> Celery:

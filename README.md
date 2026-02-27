@@ -227,3 +227,29 @@ sudo apt-get install -y cmake build-essential python3-dev
 ```
 
 Без этих пакетов биометрический модуль сравнения лиц не соберётся/не запустится.
+
+
+## eBPF Shield (Cilium + Tetragon)
+
+Развёртывание инфраструктуры eBPF безопасности:
+
+```bash
+bash k8s/install_ebpf_shield.sh
+```
+
+Применение eBPF TracingPolicy для блокировки suspicious syscall-паттернов и мониторинга чувствительных файлов:
+
+```bash
+kubectl apply -f k8s/07-tetragon-policy.yaml
+```
+
+
+## CockroachDB (Distributed SQL)
+
+Развёртывание кластера CockroachDB (3 узла):
+
+```bash
+bash k8s/install_cockroachdb.sh
+```
+
+После запуска проверьте сервис и подключение к порту `26257`.

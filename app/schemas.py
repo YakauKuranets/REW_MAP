@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -84,3 +84,36 @@ class TerminalReadSchema(StrictSchema):
     terminal_type: str | None = None
     archive_root_path: str | None = None
     has_auth_credentials: bool = False
+
+
+# --- FastAPI migration contracts (Phase 1) ---
+class AgentLocationUpdate(BaseModel):
+    agent_id: str = Field(..., description="Уникальный ID агента")
+    lat: float = Field(..., ge=-90, le=90, description="Широта")
+    lon: float = Field(..., ge=-180, le=180, description="Долгота")
+    status: Optional[str] = Field("active", description="Текущий статус агента")
+    battery_level: Optional[int] = Field(None, ge=0, le=100)
+
+
+class TrackerResponse(BaseModel):
+    status: str
+    message: str
+    processed_id: Optional[str] = None
+
+
+class ScanRequest(BaseModel):
+    target_ip: str = Field(..., description="IP адрес или домен цели")
+    scan_type: str = Field(..., description="Тип сканирования (modbus, 5g, can, osint)")
+    options: dict = Field(default_factory=dict)
+
+
+class ThreatIntelPayload(BaseModel):
+    alias: Optional[str] = None
+    email: Optional[str] = None
+    context: str = Field(default="darknet_forum", description="Источник данных")
+
+
+class ScanResponse(BaseModel):
+    status: str
+    task_id: Optional[str] = None
+    message: str

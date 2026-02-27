@@ -17,7 +17,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import quote
 
 import httpx
-from flask import Response, jsonify, request, stream_with_context
+from compat_flask import Response, jsonify, request, stream_with_context
 from starlette.concurrency import run_in_threadpool
 
 from .. import models

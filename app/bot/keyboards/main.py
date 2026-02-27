@@ -13,16 +13,21 @@ from aiogram.types import (
 )
 
 
-def main_menu_keyboard() -> ReplyKeyboardMarkup:
+def get_main_keyboard() -> ReplyKeyboardMarkup:
     """Main keyboard with Telegram Mini App launch button."""
-    mini_app_url = (os.getenv("MINI_APP_URL") or "https://example.com/miniapp").strip()
+    terminal_url = (os.getenv("MINI_APP_URL") or "https://your-production-domain.com/webapp").strip()
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="🗺 Открыть штаб (Mini App)", web_app=WebAppInfo(url=mini_app_url))],
-            [KeyboardButton(text="🚨 Сообщить об инциденте")],
+            [KeyboardButton(text="🌐 Развернуть Терминал (WebGPU)", web_app=WebAppInfo(url=terminal_url))],
+            [KeyboardButton(text="🚨 SOS / Экстренный Сброс")],
         ],
         resize_keyboard=True,
     )
+
+
+def main_menu_keyboard() -> ReplyKeyboardMarkup:
+    """Backward-compatible alias for existing handlers."""
+    return get_main_keyboard()
 
 
 def quick_actions_inline() -> InlineKeyboardMarkup:

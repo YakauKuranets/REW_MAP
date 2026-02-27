@@ -7,7 +7,7 @@ import logging
 from typing import Dict, List, Optional
 
 import requests
-from flask import current_app
+from compat_flask import current_app
 
 logger = logging.getLogger(__name__)
 
