@@ -1,0 +1,8 @@
+admin
+password
+12345678
+tp-link
+netgear
+linksys
+wireless
+changeme
