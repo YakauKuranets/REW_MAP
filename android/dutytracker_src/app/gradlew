@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+# Minimal Gradle bootstrapper. Prefer using gradlew.bat on Windows.
+DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+echo "Use gradlew.bat on Windows. On Unix, please install Gradle 8.7 or generate wrapper."
+exec gradle "$@"
