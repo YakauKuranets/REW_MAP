@@ -1,0 +1,21 @@
+# Cloudflare Named Tunnel config template (Windows)
+#
+# Where to place:
+#   %USERPROFILE%\.cloudflared\config.yml
+#
+# After setup, run:
+#   cloudflared tunnel run <TUNNEL_NAME>
+#
+# IMPORTANT:
+# - Replace <TUNNEL_ID> and <USERNAME>.
+# - `service` points to your local ASGI server (uvicorn) on port 8000.
+
+tunnel: <TUNNEL_ID>
+credentials-file: C:\\Users\\<USERNAME>\\.cloudflared\\<TUNNEL_ID>.json
+
+ingress:
+  - hostname: madcommandcentre.org
+    service: http://localhost:8000
+  - hostname: www.madcommandcentre.org
+    service: http://localhost:8000
+  - service: http_status:404

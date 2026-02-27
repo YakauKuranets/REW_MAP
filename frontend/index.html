@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Map v12 — Vite UI playground</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div class="preview-shell">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="title">Аналитика заявок</div>
+            <div class="subtitle">Черновой макет панели, не влияет на боевой интерфейс</div>
+          </div>
+          <div class="pill">
+            <span class="pill-dot"></span>
+            LIVE
+          </div>
+        </div>
+        <div class="metric-grid">
+          <div class="metric">
+            <div class="metric-label">Всего адресов</div>
+            <div class="metric-value">1 248</div>
+            <div class="metric-trend">+8 за 24 часа</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Новые заявки</div>
+            <div class="metric-value">23</div>
+            <div class="metric-trend">+5 в очереди</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Сообщения в чате</div>
+            <div class="metric-value">87</div>
+            <div class="metric-trend neg">-12 к SLA</div>
+          </div>
+        </div>
+        <div class="list">
+          <div class="row">
+            <div class="row-label">
+              <span class="row-dot"></span>
+              Видео / Домофон / Шлагбаум
+            </div>
+            <div class="row-value">624 / 392 / 232</div>
+          </div>
+          <div class="row">
+            <div class="row-label">
+              <span class="row-dot"></span>
+              Локальный / удалённый доступ
+            </div>
+            <div class="row-value">712 / 536</div>
+          </div>
+          <div class="row">
+            <div class="row-label">
+              <span class="row-dot"></span>
+              Среднее время обработки
+            </div>
+            <div class="row-value">14 мин</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="title">Прототип панели админа</div>
+            <div class="subtitle">Здесь можно тестировать цвета, отступы и шрифты</div>
+          </div>
+          <span class="badge">UI draft</span>
+        </div>
+        <div class="btn-bar">
+          <button class="btn primary">
+            <span>🗺️</span>
+            Карта & адреса
+          </button>
+          <button class="btn">
+            <span>💬</span>
+            Чат с пользователями
+          </button>
+          <button class="btn">
+            <span>🔔</span>
+            Заявки и уведомления
+          </button>
+          <button class="btn">
+            <span>📊</span>
+            Экспорт & отчёты
+          </button>
+        </div>
+        <div class="note">
+          Этот экран — только Vite-песочница. Он никак не влияет на текущий интерфейс карты.
+          Его цель — обкатывать дизайн-систему (цвета, типографику, отступы) перед переносом
+          в основной style.css.
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

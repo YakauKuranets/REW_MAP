@@ -1,0 +1,13 @@
+# Пример cloudflared config.yml для Named Tunnel
+# Заменить:
+#  - <TUNNEL-UUID>
+#  - путь до credentials-file
+#  - hostname (ваш домен)
+
+tunnel: <TUNNEL-UUID>
+credentials-file: C:\Users\YOUR_USER\.cloudflared\<TUNNEL-UUID>.json
+
+ingress:
+  - hostname: map.example.com
+    service: http://localhost:8000
+  - service: http_status:404
