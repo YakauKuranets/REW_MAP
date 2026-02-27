@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>Служба — заявки и привязка DutyTracker (Map v12)</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_common.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_service.css') }}">
+</head>
+<body class="dark theme-blue admin">
+  <header class="ap-header">
+    <div class="ap-brand">
+      <span class="ap-brand__logo">🛡️</span>
+      <div>
+        <div class="ap-brand__title">Служба</div>
+        <div class="ap-brand__sub muted">заявки на доступ и привязка DutyTracker</div>
+      </div>
+    </div>
+
+    <div class="ap-actions">
+      <a class="btn ap-hide-mobile" href="/admin/panel" title="Командный центр"><i class="fa-solid fa-compass"></i> <span class="lbl">Центр</span></a>
+      <a class="btn ap-hide-mobile" href="/admin/devices" title="Устройства"><i class="fa-solid fa-mobile-screen"></i> <span class="lbl">Устройства</span></a>
+      <a class="btn ap-hide-mobile" href="/admin/metrics" title="Метрики/мониторинг"><i class="fa-solid fa-chart-line"></i> <span class="lbl">Метрики</span></a>
+      <button id="svc-refresh" class="btn" type="button" title="Обновить"><i class="fa-solid fa-rotate"></i> <span class="lbl">Обновить</span></button>
+    </div>
+  </header>
+
+  <main class="svc-wrap">
+    <section class="svc-grid">
+
+      <div class="svc-card">
+        <div class="svc-card__head">
+          <div class="svc-card__title"><i class="fa-solid fa-network-wired"></i> LAN / BASE_URL</div>
+          <div class="muted">подсказка для телефона и авто-bootstrap</div>
+        </div>
+        <div class="svc-card__body">
+          <div class="svc-row">
+            <div class="muted">Рекомендованный BASE_URL:</div>
+            <div id="lan-best" class="svc-mono">—</div>
+          </div>
+          <div class="svc-row">
+            <div class="muted">Все IP:</div>
+            <div id="lan-ips" class="svc-mono">—</div>
+          </div>
+          <div class="muted svc-hint">
+            Если телефон и ПК в одной Wi‑Fi сети, используйте BASE_URL вида <span class="svc-mono">http://IP_ПК:5000</span>.
+          </div>
+        </div>
+      </div>
+
+      <div class="svc-card">
+        <div class="svc-card__head">
+          <div class="svc-card__title"><i class="fa-solid fa-user-check"></i> Заявки на «Службу»</div>
+          <div class="muted">pending → approve/deny</div>
+        </div>
+        <div class="svc-card__body">
+          <div id="svc-access-empty" class="muted">Загрузка…</div>
+          <table class="svc-table" id="svc-access-table" style="display:none;">
+            <thead>
+              <tr>
+                <th>TG ID</th>
+                <th>Статус</th>
+                <th>Заметка</th>
+                <th>Создано</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="svc-card">
+        <div class="svc-card__head">
+          <div class="svc-card__title"><i class="fa-solid fa-link"></i> DutyTracker — привязка</div>
+          <div class="muted">pending → approve → авто-кнопка в Telegram</div>
+        </div>
+        <div class="svc-card__body">
+          <div id="svc-connect-empty" class="muted">Загрузка…</div>
+          <table class="svc-table" id="svc-connect-table" style="display:none;">
+            <thead>
+              <tr>
+                <th>TG ID</th>
+                <th>Статус</th>
+                <th>BASE_URL</th>
+                <th>Токен</th>
+                <th>Отправка</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+
+          <div class="muted svc-hint" style="margin-top:10px;">
+            Примечание: если авто-отправка не сработала, пользователь может нажать «Подключить DutyTracker» в боте ещё раз — бот получит новую ссылку.
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/csrf.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/admin_service.js') }}"></script>
+</body>
+</html>

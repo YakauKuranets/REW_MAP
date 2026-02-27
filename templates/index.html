@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <script src="{{ url_for('static', filename='js/csrf.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/realtime.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+  <title data-i18n="map_title">Map v12 — онлайн + офлайн</title>
+
+  <!-- Leaflet / плагины -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-draw@1.0.4/dist/leaflet.draw.css"/>
+
+  <!-- Иконки -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Основные стили -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  <style>
+    html,body{height:100%;margin:0}
+    #map{position:absolute;top:var(--top,56px);left:var(--side,320px);right:0;bottom:0}
+  </style>
+</head>
+<body class="light">
+  <div class="topbar">
+    <button id="btn-toggle-sidebar" class="icon" title="Скрыть/показать список">☰</button>
+    <div class="brand">Map v12</div>
+
+    <input id="search" class="input" placeholder="Поиск…" data-i18n-placeholder="map_search_ph">
+    <ul id="search-suggestions" class="suggestions"></ul>
+
+    <select id="filter-category" class="input">
+      <option value="" data-i18n="map_cat_all">Все категории</option>
+      <option value="Видеонаблюдение" data-i18n="map_cat_video">Видеонаблюдение</option>
+      <option value="Домофон" data-i18n="map_cat_dom">Домофон</option>
+      <option value="Шлагбаум" data-i18n="map_cat_slag">Шлагбаум</option>
+    </select>
+
+    <button id="btn-access" class="btn" title="Тип доступа" data-i18n="map_access_btn" data-i18n-title="map_access_btn">Тип доступа</button>
+    <div id="access-menu" class="dropdown-menu">
+      <label class="dropdown-item"><input type="checkbox" id="opt-local"> <span data-i18n="map_status_local">Локальный доступ</span></label>
+      <label class="dropdown-item"><input type="checkbox" id="opt-remote"> <span data-i18n="map_status_remote">Удаленный доступ</span></label>
+    </div>
+
+    <div class="top-actions">
+      <button id="btn-theme" class="btn" title="Тема" data-i18n-title="common_theme">🌓</button>
+      <button id="btn-lang" class="btn" title="Язык" data-i18n-title="common_language">RU</button>
+
+      <button id="btn-add" class="btn primary" title="Добавить запись">
+        <i class="fa-solid fa-plus"></i> <span class="lbl" data-i18n="map_btn_add">Добавить</span>
+      </button>
+
+      <button id="btn-file" class="btn" title="Импорт/экспорт данных">
+        <i class="fa-solid fa-file-lines"></i> <span class="lbl" data-i18n="map_btn_data">Данные</span>
+      </button>
+      <div id="file-menu" class="dropdown-menu">
+        <button id="menu-export-csv" class="dropdown-item"><i class="fa-solid fa-file-arrow-down"></i> Скачать CSV</button>
+        <button id="menu-export-json" class="dropdown-item"><i class="fa-solid fa-file-code"></i> Скачать JSON</button>
+        <button id="menu-export-xlsx" class="dropdown-item"><i class="fa-solid fa-file-excel"></i> Скачать отчёт Excel</button>
+        <button id="menu-export-addresses-xlsx" class="dropdown-item"><i class="fa-solid fa-file-excel"></i> Скачать адреса Excel</button>
+        <button id="menu-import-csv" class="dropdown-item"><i class="fa-solid fa-file-arrow-up"></i> Загрузить CSV</button>
+        <button id="menu-import-json" class="dropdown-item"><i class="fa-solid fa-file-import"></i> Загрузить JSON</button>
+      
+        
+<label class="theme-toggle">
+  <input type="checkbox" id="theme-toggle-checkbox">
+  Тёмная тема
+</label></div>
+
+      <button id="btn-bulk-del" class="btn warn" title="Удалить выбранные записи" disabled>
+        <i class="fa-solid fa-trash"></i> <span class="lbl" data-i18n="map_btn_delete_selected">Удалить выбранное</span>
+      </button>
+
+      <button id="btnDrawZone" class="btn outline" title="Нарисовать зону">
+        <i class="fa-solid fa-draw-polygon"></i> <span class="lbl">Нарисовать зону</span>
+      </button>
+      <button id="btnChooseIcon" class="btn outline" title="Выбрать значок зоны">
+        <i class="fa-solid fa-icons"></i> <span class="lbl">Выбор значка</span>
+      </button>
+
+      <button id="btn-help" class="btn outline" title="Как пользоваться">
+        <i class="fa-solid fa-circle-question"></i> <span class="lbl">Помощь</span>
+      </button>
+
+      <div class="notif-wrap">
+        <button id="btn-bell" class="btn" title="Входящие запросы">
+          <i class="fa-solid fa-bell"></i>
+          <span id="notif-count" class="notif-badge hidden">0</span>
+        </button>
+        <div id="notif-menu" class="dropdown-menu notif-menu">
+          <div class="notif-head"><span>Входящие запросы</span><span id="requests-react-root"></span></div>
+          <ul id="notif-list" class="notif-list"></ul>
+          <div class="notif-empty hidden">Пока нет запросов</div>
+        </div>
+      </div>
+
+      <!-- Кнопка аналитики (дашборд, только для администратора) -->
+      <button id="btn-analytics" class="btn" title="Аналитика" style="display:none">
+        <i class="fa-solid fa-chart-column"></i>
+      </button>
+      <!-- Кнопка управления зонами (только для супер-админа) -->
+      <button id="btn-zones" class="btn" title="Зоны" style="display:none">
+        <i class="fa-solid fa-draw-polygon"></i>
+      </button>
+
+      <!-- Кнопка управления администраторами (только для супер‑админа) -->
+      <button id="btn-admin-users" class="btn" title="Администраторы" style="display:none">
+        <i class="fa-solid fa-user-shield"></i>
+      </button>
+
+      <!-- Кнопка открытия чата (только для администратора) -->
+      <button id="btn-chat" class="btn" title="Чат" style="display:none">
+        <i class="fa-solid fa-comments"></i>
+      </button>
+
+      <!-- Слой инцидентов на карте (только для администратора) -->
+      <button id="btn-incidents-layer" class="btn" title="Инциденты на карте" style="display:none" aria-pressed="false">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span class="lbl">Инциденты</span>
+      </button>
+      <!-- Этап 2: слой объектов и создание объекта -->
+      <button id="btn-objects-layer" class="btn" title="Объекты на карте" style="display:none" aria-pressed="false">
+        <i class="fa-solid fa-location-dot"></i>
+        <span class="lbl">Объекты</span>
+      </button>
+      <button id="btn-object-add" class="btn" title="Создать инцидент на карте" style="display:none" data-mode="incident">
+        <i class="fa-solid fa-plus"></i>
+        <span class="lbl">Инцидент</span>
+      </button>
+      <button id="btn-admin-panel" class="btn" title="Командный центр" style="display:none">
+        <i class="fa-solid fa-display"></i>
+      </button>
+      <span id="chat-react-root" class="top-chat-indicator"></span>
+      <div id="admin-info" class="admin-info">
+        <span id="admin-info-label" class="admin-info__label"></span>
+        <span id="admin-role-badge" class="admin-role-badge" style="display:none"></span>
+      </div>
+    </div>
+
+    <button id="scroll-left" class="scroll-btn"><i class="fa-solid fa-chevron-left"></i></button>
+    <button id="scroll-right" class="scroll-btn"><i class="fa-solid fa-chevron-right"></i></button>
+  </div>
+
+  <div id="sidebar">
+    <div class="list-head">
+      <span>Все адреса</span>
+
+      <!-- Кнопка просмотра фото выбранной метки -->
+      <div class="list-head-actions">
+        <button id="btn-view-photo" class="btn outline" title="Показать фото выбранной метки">
+          <i class="fa-solid fa-image"></i>
+        </button>
+      </div>
+
+      <span id="count">0</span>
+    </div>
+    <div id="drop-hint">Перетащи CSV сюда для импорта</div>
+    <div id="summary-panel" class="summary-panel"></div>
+    <div id="current-filter" class="muted" style="padding:4px 12px 4px 12px;font-size:0.85rem;"><span data-i18n="map_filter_lbl">Фильтр:</span> <span id="current-filter-val" data-i18n="map_filter_all">все адреса</span></div>
+    <div id="filter-summary" class="muted" style="padding:0 12px 6px 12px;font-size:0.8rem;"><span data-i18n="map_total_lbl">Адресов:</span> <span id="filter-summary-count">0</span> <span id="filter-summary-extra" class="muted"></span></div>
+    <div id="analytics-react-root" class="panel-card" style="margin:0 10px 8px 10px;"></div>
+    <div id="list"></div>
+  </div>
+
+  <div id="map"></div>
+
+  <div class="fab"><button id="btn-settings" title="Офлайн">⚙️</button></div>
+
+  <!-- Модалка добавления/редактирования -->
+  <div id="modal-backdrop" class="backdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <b id="modal-title">Добавить</b>
+        <button id="modal-close" class="btn minimal" title="Закрыть">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="section muted small">
+          Постарайся заполнять адрес максимально понятно: улица, дом, ориентир.
+          Координаты можно получить по кнопке «Геокодинг» и при необходимости подправить вручную.
+        </div>
+        <div class="row2">
+          <input id="f-address" placeholder="Адрес" maxlength="255" autocomplete="off">
+          <button id="btn-geocode" class="btn" type="button">Геокодинг</button>
+        </div>
+        <div class="row2">
+          <input id="f-lat" placeholder="Широта" inputmode="decimal">
+          <input id="f-lon" placeholder="Долгота" inputmode="decimal">
+        </div>
+        <textarea id="f-desc" placeholder="Описание" maxlength="500"></textarea>
+        <input id="f-link" placeholder="Ссылка (по желанию)" maxlength="255" inputmode="url">
+        <select id="f-status">
+          <option>Локальный доступ</option>
+          <option>Удаленный доступ</option>
+        </select>
+        <select id="f-category">
+          <option>Видеонаблюдение</option>
+          <option>Домофон</option>
+          <option>Шлагбаум</option>
+        </select>
+
+        <!-- Поле для выбора фотографии (опционально) -->
+        <input id="f-photo" type="file" accept="image/*" style="margin-top:8px"/>
+
+        <!-- Действия с уже прикреплённым фото (для режима редактирования) -->
+        <div id="photo-edit-actions" class="row2" style="margin-top:8px; display:none">
+          <button id="btn-delete-photo" class="btn warn" type="button">
+            <i class="fa-solid fa-trash"></i><span class="lbl">Удалить фото</span>
+          </button>
+        </div>
+
+        <!-- скрытый флаг: 1 = удалить фото при сохранении -->
+        <input id="f-remove-photo" type="hidden" value="0">
+      </div>
+      <div class="modal-foot">
+        <button id="modal-save" class="btn primary">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Этап 2: модалка «Объект» (адрес + описание + камеры) -->
+    <div id="incident-backdrop" class="backdrop" style="display:none">
+      <div class="modal" style="width:min(620px,96vw)">
+        <div class="modal-head">
+          <b id="incident-modal-title">Добавить инцидент</b>
+          <button id="incident-modal-close" class="btn minimal" title="Закрыть">✕</button>
+        </div>
+        <div class="modal-body">
+          <div>
+            <label class="muted small">Адрес</label>
+            <div style="display:flex; gap:8px; align-items:center">
+              <input id="inc-address" class="input" placeholder="Например: ул. Ленина 10" style="flex:1" />
+              <button id="inc-geocode" class="btn" type="button" title="Найти координаты по адресу">Найти</button>
+            </div>
+          </div>
+
+          <input id="inc-lat" type="hidden" />
+          <input id="inc-lon" type="hidden" />
+
+          <div style="margin-top: 10px">
+            <label class="muted small">Описание</label>
+            <textarea id="inc-desc" class="input" rows="3" placeholder="Что произошло / что важно"></textarea>
+          </div>
+
+          <div class="actions" style="margin-top: 14px; display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap">
+            <div class="muted small" style="display:flex; align-items:center">
+              Подсказка: нажмите «Инцидент», затем клик по карте. Координаты берутся из точки, не из центра.
+            </div>
+            <div style="display:flex; gap:8px; margin-left:auto">
+              <button id="inc-cancel" class="btn" type="button">Отмена</button>
+              <button id="inc-save" class="btn primary" type="button">Создать</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  <div id="object-backdrop" class="backdrop">
+    <div class="modal" style="width:min(860px,96vw)">
+      <div class="modal-head">
+        <b id="object-modal-title">Объект</b>
+        <button id="object-modal-close" class="btn minimal" title="Закрыть">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="grid" style="grid-template-columns: 1.2fr 0.8fr 0.8fr; gap: 8px; align-items:end">
+          <div>
+            <label class="muted small">Адрес/название</label>
+            <div style="display:flex; gap:8px; align-items:center">
+              <input id="obj-name" class="input" placeholder="Например: ул. Ленина 10" style="flex:1" />
+              <button id="obj-geocode" class="btn" type="button" title="Найти координаты по адресу">Найти</button>
+            </div>
+          </div>
+          <div>
+            <label class="muted small">Lat</label>
+            <input id="obj-lat" class="input" placeholder="53.900000" />
+          </div>
+          <div>
+            <label class="muted small">Lon</label>
+            <input id="obj-lon" class="input" placeholder="27.566667" />
+          </div>
+        </div>
+
+        <div class="grid" style="grid-template-columns: 1fr; gap: 8px; margin-top: 10px">
+          <div>
+            <label class="muted small">Описание</label>
+            <textarea id="obj-desc" class="input" rows="3" placeholder="Коротко: что здесь и что важно"></textarea>
+          </div>
+          <div>
+            <label class="muted small">Теги/категория</label>
+            <input id="obj-tags" class="input" placeholder="Видеонаблюдение, Домофон, ..." />
+          </div>
+        </div>
+
+        <div style="margin-top: 12px">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
+            <b>Камеры</b>
+            <button id="obj-add-cam" class="btn" type="button" title="Добавить камеру">+ Камера</button>
+          </div>
+          <div class="muted small" style="margin-top:4px">URL обязателен. Label и type опциональны.</div>
+          <div id="obj-cameras" style="display:flex; flex-direction:column; gap:6px; margin-top:8px"></div>
+        </div>
+
+        <div class="actions" style="margin-top: 14px; display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap">
+          <button id="obj-delete" class="btn warn" type="button" style="display:none">Удалить</button>
+          <div style="display:flex; gap:8px; margin-left:auto">
+            <button id="obj-save" class="btn primary" type="button">Сохранить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модалка просмотра прикреплённой фотографии -->
+  <div id="photo-backdrop" class="backdrop" style="display:none">
+    <div class="modal photo">
+      <div class="modal-head">
+        <b>Фото метки</b>
+        <button id="photo-close" class="btn minimal" title="Закрыть">✕</button>
+      </div>
+      <div class="modal-body" style="text-align:center">
+        <img id="photo-img" src="" alt="Фото" style="max-width:100%;height:auto;border-radius:8px">
+      </div>
+    </div>
+  </div>
+
+  <!-- Модалка чата -->
+  <div id="chat-backdrop" class="backdrop">
+    <div class="modal chat">
+      <div class="modal-head">
+        <b>Чат</b>
+        <button id="chat-close" class="btn minimal" title="Закрыть">✕</button>
+      </div>
+      <div class="modal-body chat-body">
+        <div class="chat-list">
+          <div class="chat-list-controls">
+            <input id="chat-search" class="input chat-search" placeholder="Поиск по нику или ID">
+            <label class="chat-unread-only">
+              <input type="checkbox" id="chat-only-unread">
+              Только с новыми
+            </label>
+          </div>
+          <div class="chat-list-body"></div>
+        </div>
+        <div class="chat-dialog">
+          <div class="chat-dialog-head">
+            <div class="chat-peer">
+              <span id="chat-peer-name" class="chat-username muted">Выберите диалог слева</span>
+              <span id="chat-peer-id" class="chat-peer-id muted"></span>
+            </div>
+            <div class="chat-status-wrap">
+              <label class="chat-status-label muted">
+                Статус:
+                <select id="chat-status" class="chat-status-select">
+                  <option value="new">Новый</option>
+                  <option value="in_progress">В работе</option>
+                  <option value="closed">Закрыт</option>
+                </select>
+              </label>
+            </div>
+            <button id="chat-clear" class="btn minimal" type="button" title="Очистить историю диалога">🗑</button>
+          </div>
+          <div class="chat-messages"></div>
+          <div class="chat-input">
+            <input id="chat-input-field" placeholder="Введите сообщение…" class="input">
+            <button id="chat-send" class="btn primary" type="button">Отправить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- Настройки офлайна (шестерёнка) -->
+  <div id="settings-backdrop" class="backdrop">
+    <div class="modal settings">
+      <div class="modal-head">
+        <b>Настройки / офлайн</b>
+        <button id="settings-close" class="btn minimal" type="button" title="Закрыть">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <div class="section">
+          <h4>Город / набор карты</h4>
+          <select id="offline-city" class="input"></select>
+        </div>
+
+        <div class="section">
+          <h4>Режим карты</h4>
+          <select id="map-mode" class="input">
+            <option value="online">Онлайн</option>
+            <option value="offline">Офлайн</option>
+          </select>
+        </div>
+
+        <div class="section">
+          <h4>Тема</h4>
+          <select id="theme-select" class="input">
+            <option value="">Фиолетовая</option>
+            <option value="blue">Синяя</option>
+          </select>
+        </div>
+
+        <div class="section">
+          <h4>Офлайн-карта</h4>
+          <div class="row" style="display:flex;align-items:center;gap:8px">
+            <label for="offline-zmax" class="muted" style="white-space:nowrap">Макс. зум:</label>
+            <input id="offline-zmax" type="number" class="input" value="14" min="0" max="19" style="width:80px">
+          </div>
+          <div class="row" style="display:flex;align-items:center;gap:8px;margin-top:8px">
+            <button id="btn-download-map" class="btn primary" type="button">Скачать карту</button>
+            <div class="progress-wrap">
+              <div class="progress" id="map-progress"><span>0%</span></div>
+            </div>
+          </div>
+          <div class="row" style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <button id="btn-delete-map" class="btn warn" type="button">Удалить карту</button>
+            <span id="map-status" class="muted"></span>
+          </div>
+        </div>
+
+        <div class="section">
+          <h4>Геокодирование</h4>
+          <div class="row" style="display:flex;align-items:center;gap:8px">
+            <button id="btn-download-geocode" class="btn" type="button">Скачать базу адресов</button>
+            <div class="progress-wrap">
+              <div class="progress" id="geo-progress"><span>0%</span></div>
+            </div>
+          </div>
+          <div class="row" style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <button id="btn-delete-geocode" class="btn warn" type="button">Удалить базу</button>
+            <span id="geo-status" class="muted"></span>
+          </div>
+        </div>
+
+        <div class="section">
+          <h4>Просмотр скачанных данных</h4>
+          <div class="row" style="display:flex;gap:8px;margin-bottom:8px">
+            <button id="btn-view-map-files" class="btn" type="button">Файлы карты</button>
+            <button id="btn-view-geocode-files" class="btn" type="button">Файлы геокодера</button>
+          </div>
+          <div id="map-files-list" class="file-list" style="display:none"></div>
+          <div id="geocode-files-list" class="file-list" style="display:none"></div>
+        </div>
+
+        <div class="section">
+          <h4>Наборы офлайн-карт</h4>
+          <select id="offline-set-select" class="input" style="width:100%;margin-bottom:8px"></select>
+          <div class="row" style="display:flex;gap:8px;margin-top:4px">
+            <button id="btn-activate-set" class="btn primary" type="button">Активировать</button>
+            <button id="btn-delete-set" class="btn warn" type="button">Удалить</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <h4>Записи геокодирования</h4>
+          <button id="btn-view-geocode-entries" class="btn" type="button" style="margin-bottom:8px">Показать записи</button>
+          <div id="geocode-entries-list" class="entry-list" style="display:none"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Модалка аналитики -->
+  <div id="analytics-backdrop" class="backdrop">
+    <div class="modal analytics">
+      <div class="modal-head">
+        <b>Аналитика</b>
+        <button id="analytics-close" class="btn minimal" title="Закрыть">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="section">
+          <div class="muted">Выберите период:</div>
+          <div id="analytics-periods" class="analytics-periods" style="margin-top:8px;">
+            <button class="btn outline analytics-period-btn" data-days="1" type="button">1 день</button>
+            <button class="btn outline analytics-period-btn" data-days="7" type="button">Неделя</button>
+            <button class="btn outline analytics-period-btn" data-days="30" type="button">Месяц</button>
+            <button class="btn outline analytics-period-btn" data-days="90" type="button">Квартал</button>
+            <button class="btn outline analytics-period-btn" data-days="182" type="button">Полгода</button>
+            <button class="btn outline analytics-period-btn" data-days="365" type="button">Год</button>
+          </div>
+        </div>
+
+        <div id="analytics-text" class="analytics-text muted">
+          Нажмите кнопку периода, чтобы посмотреть сводку.
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Модалка зон -->
+  <div id="zone-backdrop">
+    <div class="zone-modal">
+      <div class="zone-modal__header">Зона</div>
+      <div class="zone-modal__body">
+        <label class="zlabel">Описание</label>
+        <input type="text" id="zoneDesc" class="zinput" placeholder="Описание зоны">
+
+        <label class="zlabel">Цвет</label>
+        <input type="color" id="zoneColor" class="zinput" value="#ffcc00">
+
+        <label class="zlabel">Значок</label>
+        <div class="zone-icons" id="zoneIcons">
+          <div class="zicon active" data-icon="beer">🍺</div>
+          <div class="zicon" data-icon="car-crash">🚗💥</div>
+          <div class="zicon" data-icon="user-secret">🕵️</div>
+          <div class="zicon" data-icon="gavel">⚖️</div>
+          <div class="zicon" data-icon="exclamation-triangle">⚠️</div>
+        </div>
+        <input type="hidden" id="zoneIcon" value="beer">
+      </div>
+      <div class="zone-modal__footer">
+        <button id="saveZoneBtn" class="zbtn zbtn-green">Сохранить</button>
+        <button class="zbtn zbtn-gray" onclick="cancelNewZone()">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <input id="hidden-file" type="file" accept=".csv" style="display:none">
+  <input id="hidden-json" type="file" accept="application/json" style="display:none">
+
+  <!-- Модалка входа (гостевой режим отключён) -->
+  <div id="role-modal" class="role-modal">
+    <div class="role-modal-content">
+      <h3 id="login-title">Вход</h3>
+      <div id="role-choice" class="role-choice" style="display:none">
+        <div class="role-choice__title muted">Куда войти после логина</div>
+        <div class="role-choice__buttons">
+          <button id="login-target-map" class="btn outline" type="button">Админ карты</button>
+          <button id="login-target-cc" class="btn outline" type="button">Командный центр</button>
+        </div>
+      </div>
+      <div id="login-area">
+        <input id="login-username" class="input" placeholder="Имя пользователя">
+        <input id="login-password" class="input" type="password" placeholder="Пароль" style="margin-top:8px">
+        <div id="login-error" style="color:#c00;font-size:0.9em;margin-top:4px;display:none"></div>
+        <div style="margin-top:12px">
+          <button id="login-submit" class="btn primary" title="Войти">Войти</button>
+          <button id="login-back" class="btn" title="Назад" style="display:none">Назад</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <style>
+    .role-modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:10000;padding:16px}
+    .role-modal-content{background:var(--card);color:inherit;padding:18px 18px;border-radius:16px;box-shadow: 0 16px 50px rgba(0,0,0,.45);text-align:center;max-width:520px;width:100%;border:1px solid rgba(0,0,0,0.08)}
+    body.dark .role-modal-content{border-color: rgba(255,255,255,0.10)}
+    .role-modal-content h3{margin:0 0 14px}
+    .role-choice{margin:0 0 12px}
+    .role-choice__title{margin-bottom:8px;font-size:13px}
+    .role-choice__buttons{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+    .role-choice__buttons .btn{min-width:170px}
+    .role-choice__buttons .btn.active{outline:2px solid rgba(109,40,217,0.55);background:rgba(109,40,217,0.10)}
+    @media (max-width: 420px){
+      .role-choice__buttons .btn{flex:1 1 100%;min-width:0}
+    }
+  </style>
+
+  <!-- Скрипты -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
+{# Пытаемся использовать Vite-бандл, если он собран (manifest.json существует). #}
+{% set vite_main = vite_asset('src/main.js') %}
+{% if vite_main %}
+  {# Продовый вариант: один бандл от Vite с кэш-бастингом. #}
+  <script type="module" src="{{ url_for('static', filename=vite_main) }}"></script>
+{% else %}
+  {# Фоллбек: старая схема — набор отдельных скриптов из static/js. #}
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+  <!-- Аналитика теперь текстовая — без Chart.js и тяжёлых графиков. -->
+  <script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/requests.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/filters.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/offline.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/map_core.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/addresses.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/export.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/search.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+  <!-- Модуль уведомлений должен подключаться после ui.js, чтобы showToast был определён -->
+  <script src="{{ url_for('static', filename='js/notify.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/admin_users.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/zones.js') }}"></script>
+{% endif %}
+
+  <!-- Этап 1.1: слой "Инциденты на карте" -->
+  <script src="{{ url_for('static', filename='js/incidents_overlay.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/incidents_layer_toggle.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/incidents_ui.js') }}"></script>
+
+  <!-- Этап 2.1: слой "Объекты" + модалка создания -->
+  <script src="{{ url_for('static', filename='js/objects_overlay.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/objects_layer_toggle.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/objects_ui.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/objects_deeplink.js') }}"></script>
+
+  <div id="admin-users-backdrop" class="backdrop" style="display:none">
+    <div class="modal admin-modal">
+      <div class="modal-head">
+        <b>Администраторы</b>
+        <button id="admin-users-close" class="btn minimal" title="Закрыть">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="section muted small">
+          Здесь супер‑администратор может управлять логинами, ролями и зонами доступа админов.
+          Выбери администратора слева, отредактируй параметры и сохрани изменения.
+        </div>
+        <div id="admin-users-root"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="zones-backdrop" class="backdrop" style="display:none">
+    <div class="modal zones-modal">
+      <div class="modal-head">
+        <b>Зоны</b>
+        <button id="zones-close" class="btn minimal" title="Закрыть">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="section muted small">
+          Зоны помогают ограничивать видимость адресов для администраторов.
+          Создавай зоны, задавай им имена и цвета, а затем привязывай к ним админов.
+        </div>
+        <div id="zones-root"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="help-backdrop" class="backdrop" style="display:none">
+    <div class="modal help-modal">
+      <div class="modal-head">
+        <b>Как пользоваться системой</b>
+        <button id="help-close" class="btn minimal" title="Закрыть">✕</button>
+      </div>
+      <div class="modal-body help-body">
+        <div class="section">
+          <h4>Карта и адреса</h4>
+          <ul>
+            <li>Слева — список адресов, справа — карта. Клик по строке подсвечивает метку на карте.</li>
+            <li>Кнопка <b>Добавить</b> открывает форму создания новой метки.</li>
+            <li>Через кнопку <b>Данные</b> можно импортировать/экспортировать CSV и JSON.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h4>Заявки и чат</h4>
+          <ul>
+            <li>Колокольчик показывает входящие заявки с бота. Нажми, чтобы открыть список.</li>
+            <li>Через кнопку <b>Чат</b> можно общаться с пользователями прямо из браузера.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h4>Админы и зоны</h4>
+          <ul>
+            <li>Кнопка <b>Администраторы</b> доступна только супер‑админу и позволяет управлять доступами.</li>
+            <li>Кнопка <b>Зоны</b> открывает редактор зон — задай названия, цвета и свяжи их с администраторами.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h4>Аналитика</h4>
+          <ul>
+            <li>В разделе <b>Аналитика</b> можно посмотреть динамику заявок и адресов по дням.</li>
+            <li>Фильтры и зона доступа автоматически учитывают права текущего администратора.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' })
+          .then(reg => console.log('SW registered:', reg.scope))
+          .catch(err => console.warn('SW registration failed', err));
+      });
+    }
+  </script>
+
+
+
+
+  <script src="{{ url_for('static', filename='js/sos.js') }}"></script>
+</body>
+</html>

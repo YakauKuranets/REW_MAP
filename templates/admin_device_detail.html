@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>Устройство — Tracker</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_common.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_devices.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_device_detail.css') }}">
+</head>
+
+<body class="dark theme-blue admin ad-body">
+
+  <header class="adm-header">
+    <div class="adm-brand">
+      <span class="adm-brand__logo">📡</span>
+      <div>
+        <div class="adm-brand__title">Устройство</div>
+        <div class="muted" style="font-size:12px">ID: <span id="dev-id">{{ device_id }}</span></div>
+      </div>
+    </div>
+
+    <div class="adm-actions">
+      <a class="btn" href="/admin/devices"><i class="fa-solid fa-arrow-left"></i> <span class="lbl">Назад</span></a>
+      <a class="btn" href="/admin/panel"><i class="fa-solid fa-compass"></i> <span class="lbl">Панель</span></a>
+      <a class="btn" href="/admin/metrics" title="Метрики/мониторинг"><i class="fa-solid fa-chart-line"></i> <span class="lbl">Метрики</span></a>
+      <a class="btn" href="/"><i class="fa-solid fa-map"></i> <span class="lbl">Карта</span></a>
+      <span id="ws-status" class="adm-ws" title="Realtime WebSocket">
+        <span class="adm-ws__dot"></span>
+        <span class="lbl">WS</span>
+      </span>
+      <button id="btn-refresh" class="btn primary" type="button"><i class="fa-solid fa-rotate"></i></button>
+
+      <!-- Chat button (opens DM chat with this device in a new tab via chat2) -->
+      <button id="btn-chat-device" class="btn" type="button" title="Чат">
+        <i class="fa-solid fa-comments"></i> <span class="lbl">Чат</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="dd-main" data-device-id="{{ device_id }}">
+    <div id="dd-alert" class="dd-alert" style="display:none"></div>
+
+    <section class="dd-grid">
+      <div class="dd-col">
+
+        <div class="dd-card">
+          <div class="dd-card__head">
+            <div>
+              <div class="dd-title" id="dd-title">—</div>
+              <div class="dd-sub muted" id="dd-sub">—</div>
+            </div>
+            <div class="dd-head-actions">
+              <a id="btn-export-health" class="btn" href="#"><i class="fa-solid fa-file-csv"></i> <span class="lbl">Health CSV</span></a>
+              <a id="btn-export-points" class="btn" href="#"><i class="fa-solid fa-file-csv"></i> <span class="lbl">Points CSV</span></a>
+              <a id="btn-export-gpx" class="btn" href="#"><i class="fa-solid fa-file-arrow-down"></i> <span class="lbl">Points GPX</span></a>
+              <a id="btn-export-alerts" class="btn" href="#"><i class="fa-solid fa-file-csv"></i> <span class="lbl">Alerts CSV</span></a>
+              <button id="btn-rotate" class="btn" type="button"><i class="fa-solid fa-key"></i> <span class="lbl">Rotate token</span></button>
+              <button id="btn-revoke" class="btn warn" type="button"><i class="fa-solid fa-ban"></i> <span class="lbl">Revoke</span></button>
+            </div>
+          </div>
+
+          <div class="dd-kv" id="dd-kv"></div>
+          <div id="dd-recs"></div>
+        </div>
+
+        <div class="dd-card">
+          <div class="dd-card__head">
+            <div class="dd-card__title"><i class="fa-solid fa-bell"></i> Алёрты (последние 72 часа)</div>
+            <div class="dd-head-actions">
+              <select id="sel-alert-hours" class="input" style="height:34px">
+                <option value="24">24ч</option>
+                <option value="72" selected>72ч</option>
+                <option value="168">7д</option>
+              </select>
+              <select id="sel-alerts" class="input" style="height:34px">
+                <option value="all" selected>Все</option>
+                <option value="active">Только активные</option>
+                <option value="closed">Только закрытые</option>
+              </select>
+              <button id="btn-ack-all" class="btn" type="button"><i class="fa-solid fa-check"></i> <span class="lbl">ACK все</span></button>
+              <button id="btn-close-all" class="btn warn" type="button"><i class="fa-solid fa-xmark"></i> <span class="lbl">Close все</span></button>
+            </div>
+          </div>
+          <div class="dd-rangebar">
+            <div class="dd-rangebar__lbl muted">Диапазон алёртов:</div>
+            <input id="alerts-from" class="input" type="datetime-local" />
+            <span class="muted">—</span>
+            <input id="alerts-to" class="input" type="datetime-local" />
+            <button id="btn-alerts-apply" class="btn" type="button"><i class="fa-solid fa-filter"></i> <span class="lbl">Apply</span></button>
+            <button id="btn-alerts-clear" class="btn" type="button"><i class="fa-solid fa-rotate-left"></i> <span class="lbl">Clear</span></button>
+          </div>
+
+          <div id="dd-alerts-summary" class="dd-mini muted">—</div>
+          <div id="dd-alerts" class="dd-alerts"></div>
+        </div>
+
+        <div class="dd-card">
+          <div class="dd-card__head">
+            <div class="dd-card__title"><i class="fa-solid fa-heart-pulse"></i> Health (последние 12 часов)</div>
+            <div class="dd-head-actions">
+              <select id="sel-hours" class="input" style="height:34px">
+                <option value="1">1 час</option>
+                <option value="3">3 часа</option>
+                <option value="6">6 часов</option>
+                <option value="12" selected>12 часов</option>
+                <option value="24">24 часа</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="dd-charts">
+            <div class="dd-chart">
+              <div class="dd-chart__lbl muted">Батарея %</div>
+              <canvas id="ch-battery" height="90"></canvas>
+            </div>
+            <div class="dd-chart">
+              <div class="dd-chart__lbl muted">Очередь точек</div>
+              <canvas id="ch-queue" height="90"></canvas>
+            </div>
+            <div class="dd-chart">
+              <div class="dd-chart__lbl muted">Точность (м)</div>
+              <canvas id="ch-acc" height="90"></canvas>
+            </div>
+          </div>
+
+          <div class="dd-tablewrap">
+            <table class="dd-table">
+              <thead>
+                <tr>
+                  <th>время</th>
+                  <th>бат</th>
+                  <th>сеть</th>
+                  <th>gps</th>
+                  <th>acc</th>
+                  <th>queue</th>
+                  <th>track</th>
+                  <th>ошибка</th>
+                </tr>
+              </thead>
+              <tbody id="tb-health"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="dd-col">
+        <div class="dd-card">
+          <div class="dd-card__head">
+            <div class="dd-card__title"><i class="fa-solid fa-location-dot"></i> Точки/маршрут <span class="muted" style="font-weight:600">(период: <span id="dd-route-hours-lbl">12ч</span>)</span></div>
+            <div class="dd-head-actions">
+              <select id="sel-route-hours" class="input" style="height:34px">
+                <option value="1">1ч</option>
+                <option value="3">3ч</option>
+                <option value="6">6ч</option>
+                <option value="12" selected>12ч</option>
+                <option value="24">24ч</option>
+                <option value="72">72ч</option>
+                <option value="168">7д</option>
+              </select>
+              <button id="btn-fit" class="btn" type="button"><i class="fa-solid fa-compress"></i> <span class="lbl">Fit</span></button>
+            </div>
+          </div>
+
+          <div class="dd-rangebar">
+            <div class="dd-rangebar__lbl muted">Диапазон маршрута:</div>
+            <input id="route-from" class="input" type="datetime-local" />
+            <span class="muted">—</span>
+            <input id="route-to" class="input" type="datetime-local" />
+            <button id="btn-route-apply" class="btn" type="button"><i class="fa-solid fa-filter"></i> <span class="lbl">Apply</span></button>
+            <button id="btn-route-clear" class="btn" type="button"><i class="fa-solid fa-rotate-left"></i> <span class="lbl">Clear</span></button>
+          </div>
+
+          <div id="dev-map" class="dd-map"></div>
+
+          <div id="dd-points-summary" class="dd-mini muted">—</div>
+
+          <div class="dd-tablewrap">
+            <table class="dd-table">
+              <thead>
+                <tr>
+                  <th>время</th>
+                  <th>lat</th>
+                  <th>lon</th>
+                  <th>acc</th>
+                  <th>kind</th>
+                </tr>
+              </thead>
+              <tbody id="tb-points"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    window.DEVICE_ID = {{ device_id|tojson }};
+  </script>
+<script src="{{ url_for('static', filename='js/csrf.js') }}"></script>
+<script src="{{ url_for('static', filename='js/realtime.js') }}"></script>
+  
+<script src="{{ url_for('static', filename='js/recs.js') }}"></script>
+<script src="{{ url_for('static', filename='js/admin_device_detail.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>Инциденты — Map v12</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_common.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_devices.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_incidents.css') }}">
+</head>
+<body class="dark theme-blue admin">
+  <header class="adm-header">
+    <div class="adm-brand">
+      <span class="adm-brand__logo">⚠️</span>
+      <div>
+        <div class="adm-brand__title">Инциденты</div>
+        <div class="muted">время сервера: <span id="server-time">—</span></div>
+      </div>
+    </div>
+
+    <div class="adm-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input id="inc-q" class="input" placeholder="Поиск: адрес / описание">
+      <input id="inc-tag" class="input" placeholder="Тег/объект" style="width:160px">
+      <button id="inc-btn-search" class="btn" type="button">Найти</button>
+      <label class="adm-chk muted"><input type="checkbox" id="inc-flt-new"> new</label>
+      <label class="adm-chk muted"><input type="checkbox" id="inc-flt-assigned"> assigned</label>
+      <label class="adm-chk muted"><input type="checkbox" id="inc-flt-enroute"> enroute</label>
+      <label class="adm-chk muted"><input type="checkbox" id="inc-flt-on_scene"> on_scene</label>
+      <label class="adm-chk muted"><input type="checkbox" id="inc-flt-resolved"> resolved</label>
+      <label class="adm-chk muted"><input type="checkbox" id="inc-flt-closed"> closed</label>
+
+      <!-- Фильтр по приоритету P1–P5 -->
+      <span class="muted" style="margin-left:12px;margin-right:4px">Priority:</span>
+      <label class="adm-chk muted"><input type="checkbox" id="inc-pri-1"> P1</label>
+      <label class="adm-chk muted"><input type="checkbox" id="inc-pri-2"> P2</label>
+      <label class="adm-chk muted"><input type="checkbox" id="inc-pri-3"> P3</label>
+      <label class="adm-chk muted"><input type="checkbox" id="inc-pri-4"> P4</label>
+      <label class="adm-chk muted"><input type="checkbox" id="inc-pri-5"> P5</label>
+    </div>
+
+    <!-- Фильтр по дате создания -->
+    <div class="adm-search" style="margin-top:4px">
+      <span class="muted" style="margin-right:6px">Дата:</span>
+      <input id="inc-from-date" class="input" type="date" style="height:32px;width:140px"> 
+      <span class="muted" style="margin:0 6px">—</span>
+      <input id="inc-to-date" class="input" type="date" style="height:32px;width:140px">
+    </div>
+
+    <div class="adm-actions">
+      <a class="btn" href="/admin/panel" title="Командный центр"><i class="fa-solid fa-gauge"></i> <span class="lbl">Центр</span></a>
+      <a class="btn" href="/admin/devices" title="Устройства"><i class="fa-solid fa-mobile-screen"></i> <span class="lbl">Устройства</span></a>
+      <a class="btn" href="/admin/problems" title="Проблемы"><i class="fa-solid fa-triangle-exclamation"></i> <span class="lbl">Проблемы</span></a>
+      <a class="btn" href="/admin/metrics" title="Метрики"><i class="fa-solid fa-chart-line"></i> <span class="lbl">Метрики</span></a>
+      <a class="btn" href="/admin/service" title="Служба"><i class="fa-solid fa-shield-halved"></i> <span class="lbl">Служба</span></a>
+      <a class="btn" href="/admin/objects" title="Адреса/объекты"><i class="fa-solid fa-location-dot"></i> <span class="lbl">Адреса</span></a>
+      <a class="btn" href="/" title="На карту"><i class="fa-solid fa-map"></i> <span class="lbl">Карта</span></a>
+      <button id="inc-refresh" class="btn primary" type="button" title="Обновить"><i class="fa-solid fa-rotate"></i></button>
+    </div>
+  </header>
+
+  <main class="adm-main">
+    <div class="adm-kpi" id="inc-kpi">
+      <div class="adm-kpi__item"><div class="adm-kpi__lbl">Всего</div><div class="adm-kpi__val" id="kpi-inc-total">0</div></div>
+      <div class="adm-kpi__item"><div class="adm-kpi__lbl">New</div><div class="adm-kpi__val" id="kpi-inc-new">0</div></div>
+      <div class="adm-kpi__item"><div class="adm-kpi__lbl">Assigned</div><div class="adm-kpi__val" id="kpi-inc-assigned">0</div></div>
+      <div class="adm-kpi__item"><div class="adm-kpi__lbl">Enroute</div><div class="adm-kpi__val" id="kpi-inc-enroute">0</div></div>
+      <div class="adm-kpi__item"><div class="adm-kpi__lbl">On scene</div><div class="adm-kpi__val" id="kpi-inc-on_scene">0</div></div>
+      <div class="adm-kpi__item"><div class="adm-kpi__lbl">Resolved</div><div class="adm-kpi__val" id="kpi-inc-resolved">0</div></div>
+      <div class="adm-kpi__item"><div class="adm-kpi__lbl">Closed</div><div class="adm-kpi__val" id="kpi-inc-closed">0</div></div>
+    </div>
+
+    <div id="inc-alertbar" class="adm-alertbar" style="display:none"></div>
+
+    <div id="inc-list" class="adm-list muted">Загрузка…</div>
+  </main>
+
+  <div id="toast" class="adm-toast"></div>
+
+<script src="{{ url_for('static', filename='js/csrf.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/realtime.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/admin_incidents.js') }}"></script>
+</body>
+</html>

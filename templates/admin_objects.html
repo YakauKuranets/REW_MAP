@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>Адреса/объекты — Map v12</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_common.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_objects.css') }}">
+</head>
+<body class="light theme-blue admin">
+
+  <header class="adm-topbar">
+    <div class="adm-topbar__left">
+      <a class="btn" href="/admin/panel" title="Командный центр"><i class="fa-solid fa-arrow-left"></i> Панель</a>
+      <div class="adm-topbar__title">
+        <div class="h1">Объекты</div>
+        <div class="muted small">Адреса, описание, камеры. Импорт/экспорт.</div>
+      </div>
+    </div>
+
+    <div class="adm-topbar__right">
+      <a class="btn" href="/admin/incidents" title="Инциденты"><i class="fa-solid fa-triangle-exclamation"></i> Инциденты</a>
+      <a class="btn" href="/admin/devices" title="Устройства"><i class="fa-solid fa-mobile-screen"></i> Устройства</a>
+      <a class="btn" href="/" title="Карта"><i class="fa-solid fa-map"></i> Карта</a>
+    </div>
+  </header>
+
+  <main class="adm-wrap">
+
+    <section class="card">
+      <div class="card__head">
+        <div class="card__title"><i class="fa-solid fa-filter"></i> Фильтры</div>
+        <div class="card__actions">
+          <button id="btn-export-csv" class="btn" type="button" title="Экспорт CSV"><i class="fa-solid fa-file-csv"></i> CSV</button>
+          <button id="btn-export-xlsx" class="btn" type="button" title="Экспорт XLSX"><i class="fa-solid fa-file-excel"></i> XLSX</button>
+
+          <button id="btn-template-csv" class="btn minimal" type="button" title="Скачать шаблон CSV"><i class="fa-solid fa-file-arrow-down"></i> Шаблон CSV</button>
+          <button id="btn-template-xlsx" class="btn minimal" type="button" title="Скачать шаблон XLSX"><i class="fa-solid fa-file-arrow-down"></i> Шаблон XLSX</button>
+
+          <label class="btn minimal" style="display:flex;gap:8px;align-items:center" title="Проверить файл без сохранения (dry-run)">
+            <input id="chk-dryrun" type="checkbox" style="accent-color: var(--accent, #38bdf8)">
+            <span class="small">Dry-run</span>
+          </label>
+
+          <input id="inp-import" type="file" accept=".csv,.xlsx" style="display:none">
+          <button id="btn-import" class="btn" type="button" title="Импорт CSV/XLSX"><i class="fa-solid fa-upload"></i> Импорт</button>
+
+          <a class="btn primary" href="/admin/panel" title="Создать объект на карте"><i class="fa-solid fa-plus"></i> Создать на карте</a>
+        </div>
+      </div>
+
+      <div class="grid filters">
+        <label class="field">
+          <span class="lbl">Поиск</span>
+          <input id="flt-q" class="input" placeholder="адрес / описание">
+        </label>
+        <label class="field">
+          <span class="lbl">Тэг</span>
+          <input id="flt-tag" class="input" placeholder="например: видео">
+        </label>
+        <div class="field">
+          <span class="lbl">Действия</span>
+          <div class="row">
+            <button id="btn-apply" class="btn" type="button"><i class="fa-solid fa-rotate"></i> Обновить</button>
+            <button id="btn-clear" class="btn minimal" type="button">Сброс</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card__foot muted small">
+        Формат камер в CSV/XLSX: <code>label|type|url;;label|type|url</code>. Также поддерживаются поля <code>camera1_url</code>, <code>camera1_label</code>, <code>camera1_type</code> и т.д.
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card__head">
+        <div class="card__title"><i class="fa-solid fa-list"></i> Список</div>
+        <div class="card__actions">
+          <span class="badge" id="count">0</span>
+        </div>
+      </div>
+
+      <div id="err" class="alert" style="display:none"></div>
+      <div id="loading" class="muted" style="padding:10px">Загрузка…</div>
+
+      <div class="table-wrap">
+        <table class="table" id="tbl">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Адрес/название</th>
+              <th>Тэги</th>
+              <th>Коорд.</th>
+              <th>Камеры</th>
+              <th style="width:260px">Действия</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="{{ url_for('static', filename='js/csrf.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/admin_objects.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>Инцидент — Map v12</title>
+
+  <!-- Фоновые стили и темы -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_common.css') }}">
+  <!-- Подтягиваем стили для карточек и инцидентов -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_devices.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_incidents.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_incident_detail.css') }}">
+</head>
+<body class="dark theme-blue admin">
+  <header class="adm-header">
+    <div class="adm-brand">
+      <span class="adm-brand__logo">⚠️</span>
+      <div>
+        <div class="adm-brand__title">Инцидент</div>
+        <div class="muted" style="font-size:12px">ID: <span id="inc-id">{{ incident_id }}</span></div>
+      </div>
+    </div>
+
+    <div class="adm-actions">
+      <a class="btn" href="/admin/incidents"><i class="fa-solid fa-arrow-left"></i> <span class="lbl">Назад</span></a>
+      <a class="btn" href="/admin/panel" title="Командный центр"><i class="fa-solid fa-gauge"></i> <span class="lbl">Центр</span></a>
+      <a class="btn" href="/admin/devices" title="Устройства"><i class="fa-solid fa-mobile-screen"></i> <span class="lbl">Устройства</span></a>
+      <a class="btn" href="/admin/metrics" title="Метрики"><i class="fa-solid fa-chart-line"></i> <span class="lbl">Метрики</span></a>
+      <a class="btn" href="/"><i class="fa-solid fa-map"></i> <span class="lbl">Карта</span></a>
+      <button id="inc-refresh" class="btn primary" type="button" title="Обновить"><i class="fa-solid fa-rotate"></i></button>
+    </div>
+  </header>
+
+  <main class="adm-main" id="inc-main" data-incident-id="{{ incident_id }}">
+    <div id="inc-alert" class="adm-alertbar" style="display:none"></div>
+
+    <!-- Блок с основной информацией об инциденте -->
+    <section class="inc-section">
+      <div class="inc-card" id="inc-card-details">
+        <div class="inc-card__head">
+          <div>
+            <div class="inc-title" id="inc-address">—</div>
+            <div class="inc-sub muted" id="inc-status">—</div>
+          </div>
+          <div class="inc-head-actions" id="inc-assign-actions">
+            <!-- Действия по назначению наряда и обновлению статуса появятся динамически -->
+          </div>
+        </div>
+        <div class="inc-kv" id="inc-kv"></div>
+        <div id="inc-desc" class="inc-desc muted" style="white-space: pre-wrap"></div>
+        <div id="inc-cameras" class="inc-cams"></div>
+      </div>
+    </section>
+
+    <!-- Блок с таймлайном событий -->
+    <section class="inc-section">
+      <div class="inc-card">
+        <div class="inc-card__head"><div class="inc-card__title"><i class="fa-solid fa-clock"></i> Таймлайн</div></div>
+        <div id="inc-events" class="inc-events muted">Загрузка…</div>
+      </div>
+    </section>
+
+    <!-- Блок с назначениями и SLA -->
+    <section class="inc-section">
+      <div class="inc-card">
+        <div class="inc-card__head"><div class="inc-card__title"><i class="fa-solid fa-clipboard-list"></i> Назначения и SLA</div></div>
+        <div id="inc-assignments" class="inc-assigns muted">Загрузка…</div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="adm-toast"></div>
+
+  <script src="{{ url_for('static', filename='js/csrf.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/realtime.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/admin_incident_detail.js') }}"></script>
+</body>
+</html>

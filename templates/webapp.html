@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini App — заявка</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900">
+  <main class="max-w-xl mx-auto p-4 space-y-4">
+    <h1 class="text-xl font-semibold">Новая заявка</h1>
+    <form id="webapp-form" class="space-y-3 bg-white rounded-xl shadow p-4">
+      <label class="block text-sm">Категория
+        <select id="category" class="w-full mt-1 rounded border p-2">
+          <option>Видеонаблюдение</option>
+          <option>Освещение</option>
+          <option>Охрана</option>
+          <option>Прочее</option>
+        </select>
+      </label>
+      <label class="block text-sm">Описание
+        <textarea id="description" class="w-full mt-1 rounded border p-2" rows="3" required></textarea>
+      </label>
+      <label class="block text-sm">Фото (URL/base64)
+        <input id="photo" class="w-full mt-1 rounded border p-2" />
+      </label>
+      <div>
+        <p class="text-sm mb-1">Координаты (клик по карте)</p>
+        <div id="map" class="w-full h-64 rounded border"></div>
+        <p id="coords-view" class="text-xs text-slate-500 mt-1">Координаты не выбраны</p>
+      </div>
+      <button id="submit-btn" type="submit" class="w-full bg-blue-600 text-white rounded-lg py-2">Отправить</button>
+    </form>
+    <p id="status" class="text-sm"></p>
+  </main>
+
+<script>
+(function () {
+  const tg = window.Telegram?.WebApp;
+  if (tg) {
+    tg.ready();
+    const p = tg.themeParams || {};
+    if (p.bg_color) document.body.style.background = p.bg_color;
+    if (p.text_color) document.body.style.color = p.text_color;
+  }
+
+  const form = document.getElementById('webapp-form');
+  const coordsView = document.getElementById('coords-view');
+  const statusEl = document.getElementById('status');
+  let selected = null;
+
+  const map = L.map('map').setView([53.9, 27.56], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OSM'
+  }).addTo(map);
+  let marker = null;
+
+  map.on('click', (e) => {
+    selected = {lat: e.latlng.lat, lon: e.latlng.lng};
+    if (marker) marker.remove();
+    marker = L.marker([selected.lat, selected.lon]).addTo(map);
+    coordsView.textContent = `lat: ${selected.lat.toFixed(6)}, lon: ${selected.lon.toFixed(6)}`;
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!selected) {
+      statusEl.textContent = 'Сначала выберите координаты на карте';
+      return;
+    }
+
+    const payload = {
+      category: document.getElementById('category').value,
+      description: document.getElementById('description').value,
+      photo: document.getElementById('photo').value,
+      coords: selected,
+      initData: tg?.initData || window.__mockInitData || ''
+    };
+
+    const res = await fetch('/api/bot/webapp_submit', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      statusEl.textContent = 'Заявка отправлена';
+      tg?.close();
+    } else {
+      statusEl.textContent = 'Ошибка отправки';
+    }
+  });
+})();
+</script>
+</body>
+</html>

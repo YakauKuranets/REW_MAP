@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>Устройства — Map v12</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_common.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_devices.css') }}">
+</head>
+<body class="dark theme-blue admin">
+  <header class="adm-header">
+    <div class="adm-brand">
+      <span class="adm-brand__logo">📱</span>
+      <div>
+        <div class="adm-brand__title">Устройства</div>
+        <div class="muted">время сервера: <span id="server-time">—</span></div>
+      </div>
+    </div>
+
+    <div class="adm-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input id="q" class="input" placeholder="Поиск: device_id / user_id / номер наряда / ФИО…">
+      <button id="btn-search" class="btn" type="button">Найти</button>
+      <label class="adm-chk muted"><input type="checkbox" id="flt-online"> online</label>
+      <label class="adm-chk muted"><input type="checkbox" id="flt-stale"> stale</label>
+      <label class="adm-chk muted"><input type="checkbox" id="flt-revoked"> revoked</label>
+    </div>
+
+    <div class="adm-actions">
+      <a class="btn" href="/admin/panel" title="Командный центр"><i class="fa-solid fa-gauge"></i> <span class="lbl">Центр</span></a>
+      <a class="btn" href="/admin/problems" title="Проблемы/алёрты трекера"><i class="fa-solid fa-triangle-exclamation"></i> <span class="lbl">Проблемы</span></a>
+      <a class="btn" href="/admin/metrics" title="Метрики/мониторинг"><i class="fa-solid fa-chart-line"></i> <span class="lbl">Метрики</span></a>
+      <a class="btn" href="/" title="На карту"><i class="fa-solid fa-map"></i> <span class="lbl">Карта</span></a>
+      <button id="btn-refresh" class="btn primary" type="button" title="Обновить"><i class="fa-solid fa-rotate"></i></button>
+    </div>
+  </header>
+
+  <main class="adm-main">
+    <div class="adm-kpi">
+      <div class="adm-kpi__item"><div class="adm-kpi__lbl">Всего</div><div class="adm-kpi__val" id="kpi-all">0</div></div>
+      <div class="adm-kpi__item"><div class="adm-kpi__lbl">Online</div><div class="adm-kpi__val" id="kpi-online">0</div></div>
+      <div class="adm-kpi__item"><div class="adm-kpi__lbl">Stale</div><div class="adm-kpi__val" id="kpi-stale">0</div></div>
+      <div class="adm-kpi__item"><div class="adm-kpi__lbl">Revoked</div><div class="adm-kpi__val" id="kpi-revoked">0</div></div>
+    </div>
+
+    <div id="alertbar" class="adm-alertbar" style="display:none"></div>
+
+    <div id="list" class="adm-list muted">Загрузка…</div>
+  </main>
+
+  <div id="toast" class="adm-toast"></div>
+
+<script src="{{ url_for('static', filename='js/csrf.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/realtime.js') }}"></script>
+  
+<script src="{{ url_for('static', filename='js/recs.js') }}"></script>
+<script src="{{ url_for('static', filename='js/admin_devices.js') }}"></script>
+</body>
+</html>

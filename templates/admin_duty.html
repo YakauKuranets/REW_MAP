@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>Duty — Наряды (Map v12)</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    header { display:flex; align-items:center; gap:12px; padding:10px 12px; border-bottom:1px solid rgba(0,0,0,.08); }
+    header a { text-decoration:none; }
+    .wrap { display:grid; grid-template-columns: 360px 1fr; height: calc(100vh - 52px); }
+    .sidebar { border-right:1px solid rgba(0,0,0,.08); overflow:auto; padding:10px; }
+    .main { position: relative; }
+    #map { height: 100%; width:100%; }
+    .card { border:1px solid rgba(0,0,0,.12); border-radius:10px; padding:10px; margin-bottom:10px; background:#fff; }
+    .row { display:flex; justify-content:space-between; gap:8px; align-items:center; }
+    .muted { opacity:.75; font-size:12px; }
+    .btn { padding:6px 10px; border:1px solid rgba(0,0,0,.2); border-radius:8px; cursor:pointer; background:#f7f7f7; }
+    .btn.primary { background:#e8f0ff; }
+    .btn.danger { background:#ffe8e8; }
+    .pill { font-size:12px; padding:2px 8px; border-radius:999px; border:1px solid rgba(0,0,0,.12); }
+    .pill.live { background:#e8ffea; }
+    .pill.break { background:#fff6e8; }
+    .toast { position:absolute; right:12px; top:12px; background:#111; color:#fff; padding:10px 12px; border-radius:10px; opacity:.9; display:none; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Duty dashboard</strong>
+    <span class="muted" id="server-time">—</span>
+    <span style="flex:1"></span>
+    <a class="btn" href="/">↩ На карту</a>
+  </header>
+
+  <div class="wrap">
+    <div class="sidebar">
+      <div class="card">
+        <div class="row">
+          <strong>Активные наряды</strong>
+          <span class="muted" id="count-shifts">0</span>
+        </div>
+        <div id="list-shifts" class="muted" style="margin-top:8px">Загрузка…</div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <strong>Обеды</strong>
+          <span class="muted" id="count-breaks">0</span>
+        </div>
+        <div id="list-breaks" class="muted" style="margin-top:8px">—</div>
+      </div>
+
+      <div class="card">
+        <strong>Подсказка</strong>
+        <div class="muted" style="margin-top:8px; line-height:1.3">
+          • Метки на карте обновляются polling-ом и через WebSocket (если включен).<br>
+          • Клик по метке → открыть детали последнего трека.<br>
+          • После остановки live-трекинга генерируется SVG-снимок маршрута.
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div id="map"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/csrf.js') }}"></script>
+<script src="{{ url_for('static', filename='js/realtime.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/admin_duty.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/sos.js') }}"></script>
+</body>
+</html>
