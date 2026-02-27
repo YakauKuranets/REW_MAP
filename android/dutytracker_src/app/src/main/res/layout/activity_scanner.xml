@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/viewFinder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:keepScreenOn="true" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <FrameLayout
+            android:layout_width="300dp"
+            android:layout_height="180dp"
+            android:background="@drawable/bg_scanner_target">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="8dp"
+                android:text="Наведи на номер / документ"
+                android:textColor="#CCFFFFFF"
+                android:textSize="12sp" />
+        </FrameLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tvRecognizedText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#CC10161F"
+            android:padding="12dp"
+            android:text="Распознанный текст появится здесь"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="12dp" />
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCloseScanner"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="16dp"
+        android:backgroundTint="#CC10161F"
+        android:contentDescription="Закрыть сканер"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="✕"
+        android:textColor="#FFFFFF"
+        android:textSize="22sp"
+        app:cornerRadius="28dp"
+        app:strokeColor="#80FFFFFF"
+        app:strokeWidth="1dp" />
+
+</FrameLayout>

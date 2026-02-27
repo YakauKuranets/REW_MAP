@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Material 3 Baseline — Navy / Operational Blue theme ── -->
+    <!-- Primary: Тёмно-синий (командный) -->
+    <color name="md_primary">#00F0FF</color>
+    <color name="md_on_primary">#FFFFFF</color>
+    <color name="md_primary_container">#D6E4FF</color>
+    <color name="md_on_primary_container">#001C56</color>
+
+    <!-- Secondary: Стальной -->
+    <color name="md_secondary">#3D5A8A</color>
+    <color name="md_on_secondary">#FFFFFF</color>
+    <color name="md_secondary_container">#D6E3FF</color>
+    <color name="md_on_secondary_container">#001B45</color>
+
+    <!-- Tertiary: Голубой акцент -->
+    <color name="md_tertiary">#006780</color>
+    <color name="md_on_tertiary">#FFFFFF</color>
+    <color name="md_tertiary_container">#B8EAFF</color>
+    <color name="md_on_tertiary_container">#001F28</color>
+
+    <!-- Error / SOS -->
+    <color name="md_error">#FF003C</color>
+    <color name="md_on_error">#FFFFFF</color>
+    <color name="md_error_container">#FFDAD6</color>
+    <color name="md_on_error_container">#410002</color>
+    <color name="sos_red">#FF003C</color>
+
+    <!-- Background / Surface — light -->
+    <color name="md_background">#050505</color>
+    <color name="md_on_background">#191C25</color>
+    <color name="md_surface">#000000</color>
+    <color name="md_on_surface">#191C25</color>
+    <color name="md_surface_variant">#E1E2F0</color>
+    <color name="md_on_surface_variant">#44475A</color>
+    <color name="md_outline">#74778C</color>
+
+    <!-- Status indicator colors -->
+    <color name="status_ok">#1B8B4A</color>
+    <color name="status_warn">#F59300</color>
+    <color name="status_error">#D32F2F</color>
+    <color name="status_off">#74778C</color>
+
+    <!-- Tile backgrounds -->
+    <color name="tile_gps_bg">#EBF5FF</color>
+    <color name="tile_net_bg">#F0F4FF</color>
+    <color name="tile_queue_bg">#FFF3E0</color>
+    <color name="tile_acc_bg">#E8F5E9</color>
+    <color name="tile_last_bg">#F3E5F5</color>
+    <color name="tile_battery_bg">#E8F5E9</color>
+
+    <color name="glass_card_bg">#CC10161F</color>
+    <color name="glass_card_stroke">#801A56DB</color>
+
+    <!-- Night mode overrides in res/values-night/colors.xml -->
+</resources>

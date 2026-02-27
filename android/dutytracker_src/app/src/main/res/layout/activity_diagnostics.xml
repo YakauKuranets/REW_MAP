@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorBackground">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="Диагностика"/>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="24dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Идентификаторы -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutline">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:padding="16dp" android:orientation="vertical">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="🔑  Идентификаторы"
+                        android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+                    <TextView android:id="@+id/tv_ids"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="—" android:fontFamily="monospace" android:textSize="12sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Состояние -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutline">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:padding="16dp" android:orientation="vertical">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="📊  Состояние системы"
+                        android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+                    <TextView android:id="@+id/tv_status"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="—" android:fontFamily="monospace" android:textSize="12sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Проблемы -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/md_error_container">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:padding="16dp" android:orientation="vertical">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="⚠️  Проблемы"
+                        android:textSize="14sp" android:textStyle="bold"
+                        android:textColor="@color/md_on_error_container" android:layout_marginBottom="8dp"/>
+                    <TextView android:id="@+id/tv_issues"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Нет проблем ✓"
+                        android:textSize="13sp" android:textColor="@color/md_on_error_container"/>
+                    <LinearLayout android:id="@+id/ll_issue_actions"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginTop="8dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Действия -->
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="БЫСТРЫЕ ДЕЙСТВИЯ"
+                android:textSize="11sp" android:textStyle="bold" android:letterSpacing="0.12"
+                android:textColor="?attr/colorOnSurfaceVariant" android:layout_marginBottom="8dp"/>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:layout_marginBottom="8dp">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_app_settings"
+                    android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
+                    android:layout_marginEnd="6dp" android:text="Настройки"
+                    app:cornerRadius="12dp" style="@style/Widget.Material3.Button.OutlinedButton"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_location_settings"
+                    android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
+                    android:layout_marginStart="6dp" android:text="Геолокация"
+                    app:cornerRadius="12dp" style="@style/Widget.Material3.Button.OutlinedButton"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:layout_marginBottom="8dp">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_battery_settings"
+                    android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
+                    android:layout_marginEnd="6dp" android:text="Батарея"
+                    app:cornerRadius="12dp" style="@style/Widget.Material3.Button.OutlinedButton"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_request_ignore_battery_opt"
+                    android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
+                    android:layout_marginStart="6dp" android:text="Без ограничений"
+                    app:cornerRadius="12dp" style="@style/Widget.Material3.Button.OutlinedButton"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:layout_marginBottom="8dp">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_notif_settings"
+                    android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
+                    android:layout_marginEnd="6dp" android:text="Уведомления"
+                    app:cornerRadius="12dp" style="@style/Widget.Material3.Button.OutlinedButton"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_internet_settings"
+                    android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
+                    android:layout_marginStart="6dp" android:text="Сеть"
+                    app:cornerRadius="12dp" style="@style/Widget.Material3.Button.OutlinedButton"/>
+            </LinearLayout>
+
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutline">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="МОДУЛИ ДИАГНОСТИКИ"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_ble_scan"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Bluetooth-устройства рядом"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        app:cornerRadius="12dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_port_scan"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Анализ сетевых портов"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        app:cornerRadius="12dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_web_scan"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Информация о веб-сервисах"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        app:cornerRadius="12dp"/>
+
+
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_check_updates"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Обновление базы данных для повышения точности анализа"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        app:cornerRadius="12dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_diagnostics_hint"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Используйте только на своих устройствах"
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_diagnostics_results"
+                        android:layout_width="match_parent"
+                        android:layout_height="220dp"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent" android:layout_height="1dp"
+                android:layout_marginVertical="12dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_oem_guide"
+                android:layout_width="match_parent" android:layout_height="52dp"
+                android:layout_marginBottom="8dp" android:text="📖  Руководство по производителям"
+                app:cornerRadius="14dp" style="@style/Widget.Material3.Button.OutlinedButton"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_open_journal"
+                android:layout_width="match_parent" android:layout_height="52dp"
+                android:layout_marginBottom="8dp" android:text="📋  Открыть журнал событий"
+                app:cornerRadius="14dp" style="@style/Widget.Material3.Button.OutlinedButton"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_export_logs"
+                android:layout_width="match_parent" android:layout_height="52dp"
+                android:text="📤  Экспортировать логи"
+                app:cornerRadius="14dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+
+  <com.google.android.material.appbar.MaterialToolbar
+    android:id="@+id/toolbar"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:background="?attr/colorSurface"
+    android:elevation="4dp"
+    app:title="Гайд по фону"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"/>
+
+  <ScrollView
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:padding="16dp"
+    app:layout_constraintTop_toBottomOf="@id/toolbar"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Чтобы трекинг работал всегда, проверь эти шаги. На некоторых телефонах (Xiaomi/Realme/Huawei) это критично."
+        android:textSize="14sp"/>
+
+      <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        app:cardElevation="1dp">
+
+        <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="vertical"
+          android:padding="14dp">
+
+          <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+              android:layout_width="26dp"
+              android:layout_height="26dp"
+              android:gravity="center"
+              android:text="1"
+              android:textStyle="bold"
+              android:textColor="?attr/colorOnPrimary"
+              android:background="@drawable/bg_circle_primary"/>
+
+            <TextView
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="10dp"
+              android:layout_weight="1"
+              android:text="Разрешения и доступы"
+              android:textStyle="bold"/>
+          </LinearLayout>
+
+          <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Разреши геолокацию (желательно «Всегда»), уведомления и работу в фоне."/>
+
+          <Button
+            android:id="@+id/btn_open_app_settings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Открыть настройки приложения"/>
+        </LinearLayout>
+      </com.google.android.material.card.MaterialCardView>
+
+      <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        app:cardElevation="1dp">
+
+        <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="vertical"
+          android:padding="14dp">
+
+          <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+              android:layout_width="26dp"
+              android:layout_height="26dp"
+              android:gravity="center"
+              android:text="2"
+              android:textStyle="bold"
+              android:textColor="?attr/colorOnPrimary"
+              android:background="@drawable/bg_circle_primary"/>
+
+            <TextView
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="10dp"
+              android:layout_weight="1"
+              android:text="Геолокация включена"
+              android:textStyle="bold"/>
+          </LinearLayout>
+
+          <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Проверь, что геолокация включена и точность высокая."/>
+
+          <Button
+            android:id="@+id/btn_open_location_settings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Настройки геолокации"/>
+        </LinearLayout>
+      </com.google.android.material.card.MaterialCardView>
+
+      <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        app:cardElevation="1dp">
+
+        <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="vertical"
+          android:padding="14dp">
+
+          <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+              android:layout_width="26dp"
+              android:layout_height="26dp"
+              android:gravity="center"
+              android:text="3"
+              android:textStyle="bold"
+              android:textColor="?attr/colorOnPrimary"
+              android:background="@drawable/bg_circle_primary"/>
+
+            <TextView
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="10dp"
+              android:layout_weight="1"
+              android:text="Батарея и оптимизация"
+              android:textStyle="bold"/>
+          </LinearLayout>
+
+          <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Отключи оптимизацию батареи для приложения, включи автозапуск (если есть)."/>
+
+          <Button
+            android:id="@+id/btn_open_battery_settings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Батарея/оптимизация"/>
+
+          <Button
+            android:id="@+id/btn_request_ignore_battery_opt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Разрешить работу в фоне (исключение)"/>
+          <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="OEM (MIUI/EMUI/Samsung и др.)"
+            android:textStyle="bold"/>
+
+          <Button
+            android:id="@+id/btn_open_oem_bg_settings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Открыть OEM-настройки фона/автозапуска"/>
+
+          <Button
+            android:id="@+id/btn_open_location_permission"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Разрешить геолокацию «Всегда»"/>
+
+        </LinearLayout>
+      </com.google.android.material.card.MaterialCardView>
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:text="Если после этого трекинг всё равно пропадает — открой «Диагностику» и отправь журнал админу."
+        android:textSize="13sp"/>
+
+    </LinearLayout>
+  </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

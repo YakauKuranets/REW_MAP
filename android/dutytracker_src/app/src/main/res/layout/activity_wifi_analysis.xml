@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#050505">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="[SYS] ETHER_SCAN_v4.0 // ACTIVE"
+        android:textColor="#00F0FF"
+        android:background="#11141A"
+        android:padding="16dp"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:fontFamily="monospace"
+        android:gravity="center_horizontal"
+        android:letterSpacing="0.1"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-6dp"
+        android:layout_marginBottom="4dp"
+        android:scaleY="2"
+        android:indeterminateTint="#FF003C"
+        android:indeterminate="true"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="6dp">
+
+        <Button
+            android:id="@+id/btnTabChannels"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Анализ каналов"
+            android:fontFamily="monospace"
+            android:textSize="10sp"
+            android:textAllCaps="false"
+            android:textColor="#00F0FF"
+            android:backgroundTint="#11141A"/>
+
+        <Button
+            android:id="@+id/btnTabAccessPoint"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:text="Информация AP"
+            android:fontFamily="monospace"
+            android:textSize="10sp"
+            android:textAllCaps="false"
+            android:textColor="#00F0FF"
+            android:backgroundTint="#11141A"/>
+
+        <Button
+            android:id="@+id/btnTabHistory"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:text="История"
+            android:fontFamily="monospace"
+            android:textSize="10sp"
+            android:textAllCaps="false"
+            android:textColor="#00F0FF"
+            android:backgroundTint="#11141A"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnDeepAnalysis"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:text="Углублённый анализ современных протоколов"
+        android:textAllCaps="false"
+        android:textColor="#FFB000"
+        android:fontFamily="monospace"
+        android:backgroundTint="#11141A"/>
+
+    <TextView
+        android:id="@+id/tvWpa3Warning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:padding="8dp"
+        android:text=""
+        android:textColor="#FF003C"
+        android:textSize="11sp"
+        android:fontFamily="monospace"/>
+
+    <TextView
+        android:id="@+id/tvHint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:padding="8dp"
+        android:text="PMKID — это расширенный метод оценки защищённости WPA2, позволяющий обнаружить слабые пароли без участия клиента. Требуется захват PMKID из эфира."
+        android:textColor="#8D99AE"
+        android:textSize="11sp"
+        android:fontFamily="monospace"/>
+
+    <TextView
+        android:id="@+id/tvChannelAnalysis"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:padding="8dp"
+        android:textColor="#00FF41"
+        android:textSize="12sp"
+        android:fontFamily="monospace"/>
+
+    <TextView
+        android:id="@+id/tvAccessPointInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:padding="8dp"
+        android:textColor="#FFB000"
+        android:textSize="12sp"
+        android:fontFamily="monospace"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingTop="8dp"
+        android:paddingBottom="16dp"
+        android:clipToPadding="false"/>
+</LinearLayout>

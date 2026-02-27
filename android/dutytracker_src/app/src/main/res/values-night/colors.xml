@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Night mode: Phantom tactical palette -->
+    <color name="md_primary">#00F0FF</color>
+    <color name="md_on_primary">#FFFFFF</color>
+    <color name="md_primary_container">#0E2E73</color>
+    <color name="md_on_primary_container">#D6E4FF</color>
+
+    <color name="md_secondary">#7AA0F5</color>
+    <color name="md_on_secondary">#001B45</color>
+    <color name="md_secondary_container">#1C2D57</color>
+    <color name="md_on_secondary_container">#D6E3FF</color>
+
+    <color name="md_tertiary">#5ED4F4</color>
+    <color name="md_on_tertiary">#003544</color>
+    <color name="md_tertiary_container">#004D61</color>
+    <color name="md_on_tertiary_container">#B8EAFF</color>
+
+    <color name="md_error">#FF003C</color>
+    <color name="md_on_error">#FFFFFF</color>
+    <color name="md_error_container">#600018</color>
+    <color name="md_on_error_container">#FFD7E0</color>
+
+    <color name="md_background">#050505</color>
+    <color name="md_on_background">#E1E2F0</color>
+    <color name="md_surface">#000000</color>
+    <color name="md_on_surface">#E1E2F0</color>
+    <color name="md_surface_variant">#1C1F2E</color>
+    <color name="md_on_surface_variant">#A0A4BA</color>
+    <color name="md_outline">#5C5F72</color>
+
+    <color name="status_ok">#4CAF7D</color>
+    <color name="status_warn">#FFB74D</color>
+    <color name="status_error">#FF003C</color>
+    <color name="status_off">#74778C</color>
+
+    <color name="tile_gps_bg">#0D1F33</color>
+    <color name="tile_net_bg">#0D1330</color>
+    <color name="tile_queue_bg">#221800</color>
+    <color name="tile_acc_bg">#0A2010</color>
+    <color name="tile_last_bg">#1A0A25</color>
+    <color name="tile_battery_bg">#0A2010</color>
+
+    <color name="glass_card_bg">#CC10161F</color>
+    <color name="glass_card_stroke">#801A56DB</color>
+</resources>
