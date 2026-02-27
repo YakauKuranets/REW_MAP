@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ebpf-watcher
+  namespace: dutytracker
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ebpf-watcher-logs-reader
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ebpf-watcher-logs-reader
+subjects:
+  - kind: ServiceAccount
+    name: ebpf-watcher
+    namespace: dutytracker
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ebpf-watcher-logs-reader
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ebpf-watcher
+  namespace: dutytracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ebpf-watcher
+  template:
+    metadata:
+      labels:
+        app: ebpf-watcher
+    spec:
+      serviceAccountName: ebpf-watcher
+      containers:
+        - name: ebpf-watcher
+          image: playe-cti-core:latest
+          imagePullPolicy: IfNotPresent
+          command: ["python", "-m", "app.security.ebpf_watcher"]
+          env:
+            - name: CLOUDFLARE_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: cloudflare-secrets
+                  key: api_token
+            - name: CLOUDFLARE_ZONE_ID
+              valueFrom:
+                secretKeyRef:
+                  name: cloudflare-secrets
+                  key: zone_id

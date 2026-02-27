@@ -7,7 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.mapv12.dutytracker.security.BiometricGatekeeper
 import com.mapv12.dutytracker.ui.theme.DutyTrackerTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +48,7 @@ import kotlinx.coroutines.withContext
 
 private enum class MainTab { DASHBOARD, MAP, CHAT }
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private fun startTrackerService() {
         LocationService.setTrackingOn(this, true)
@@ -68,14 +69,31 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WatchdogWorker.ensureScheduled(this)
-        setContent {
-            DutyTrackerTheme {
-                TacticalTerminalApp(
-                    onStartTracking = { startTrackerService() },
-                    onStopTracking = { stopTrackerService() },
-                )
-            }
-        }
+
+        val gatekeeper = BiometricGatekeeper(this)
+        gatekeeper.authenticate(
+            onSuccess = {
+                runCatching { App.unlockDatabase(applicationContext) }
+                    .onSuccess {
+                        setContent {
+                            DutyTrackerTheme {
+                                TacticalTerminalApp(
+                                    onStartTracking = { startTrackerService() },
+                                    onStopTracking = { stopTrackerService() },
+                                )
+                            }
+                        }
+                    }
+                    .onFailure {
+                        Toast.makeText(this, "Не удалось открыть защищенную БД", Toast.LENGTH_LONG).show()
+                        finish()
+                    }
+            },
+            onFail = {
+                Toast.makeText(this, "Биометрическая авторизация обязательна", Toast.LENGTH_LONG).show()
+                finish()
+            },
+        )
     }
 }
 

@@ -12,7 +12,7 @@ import json
 import logging
 
 import requests
-from flask import current_app
+from compat_flask import current_app
 
 FCM_URL = "https://fcm.googleapis.com/fcm/send"
 

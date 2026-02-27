@@ -14,7 +14,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Dict, Tuple
 
-from flask import Response, g, request, current_app
+from compat_flask import Response, g, request, current_app
 
 _req_total: Dict[Tuple[str, str, str], int] = defaultdict(int)
 _req_dur_sum: Dict[Tuple[str, str], float] = defaultdict(float)

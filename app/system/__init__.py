@@ -1,6 +1,6 @@
 """System helper endpoints (LAN info, diagnostics)."""
 
-from flask import Blueprint
+from compat_flask import Blueprint
 
 bp = Blueprint("system", __name__)
 

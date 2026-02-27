@@ -1,6 +1,6 @@
 """Service access ("Служба" по заявке)."""
 
-from flask import Blueprint
+from compat_flask import Blueprint
 
 bp = Blueprint("service_access", __name__)
 

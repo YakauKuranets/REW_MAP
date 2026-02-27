@@ -12,7 +12,7 @@ import uuid
 from io import StringIO
 from typing import Any, Dict, List, Optional
 
-from flask import Response, jsonify, request, current_app, send_from_directory
+from compat_flask import Response, jsonify, request, current_app, send_from_directory
 
 from ..helpers import (
     parse_coord,

@@ -20,7 +20,7 @@ API поддерживает следующие операции:
 
 from typing import Any, Dict
 
-from flask import jsonify, request, abort, current_app, session
+from compat_flask import jsonify, request, abort, current_app, session
 
 from . import bp
 from ..helpers import require_admin

@@ -1,0 +1,48 @@
+site_name: PLAYE STUDIO PRO - TACTICAL WIKI
+site_description: Закрытая база знаний для операторов Командного Центра.
+site_author: PLAYE R&D
+copyright: "Классифицировано / Только для служебного пользования"
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: cyan
+    accent: light blue
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+  icon:
+    logo: material/eye-circle
+
+plugins:
+  - search
+  - tags
+
+extra:
+  version:
+    provider: mike
+
+nav:
+  - Инструктаж (Manifesto): index.md
+  - Инфраструктура Ring 0:
+      - eBPF-щит: architecture/ebpf_shield.md
+      - Кластер Neo4j: architecture/neo4j_cluster.md
+      - Распределённое хранилище: architecture/cockroachdb.md
+  - Командный Центр (WebGPU):
+      - 3D-глобус: frontend/terminal.md
+      - Граф атрибуции: frontend/identity_graph.md
+      - Мини-терминал Telegram: frontend/mini_terminal.md
+  - Мобильные Призраки:
+      - Протокол Ghost: agents/ghost_protocol.md
+      - Mesh-сеть Reticulum: agents/mesh_network.md
+      - Радио-сканеры: agents/scanners.md
+  - Плейбуки (SOAR):
+      - Обнаружение узла "Синдром": playbooks/syndrome_response.md
+      - Изоляция заражённого агента: playbooks/agent_isolation.md
+      - Массовая дезинформация: playbooks/poison_well.md
+  - Вектор v7.0 (Future): roadmap_v7.md

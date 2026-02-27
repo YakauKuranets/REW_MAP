@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 from datetime import timedelta
-from flask import current_app
+from compat_flask import current_app
 
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 

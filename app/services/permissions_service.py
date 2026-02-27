@@ -12,8 +12,8 @@ from __future__ import annotations
 
 from typing import Optional
 
-from flask import current_app
-from werkzeug.security import check_password_hash
+from compat_flask import current_app
+from compat_werkzeug_security import check_password_hash
 
 from ..extensions import db
 from ..models import AdminUser, Zone

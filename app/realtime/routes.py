@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from flask import current_app, jsonify, request, session
+from compat_flask import current_app, jsonify, request, session
 
 from . import bp
 from .tokens import issue_token

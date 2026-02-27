@@ -10,7 +10,7 @@ import json
 from typing import Any, Dict, List, Optional
 
 import requests
-from flask import current_app
+from compat_flask import current_app
 
 
 def _load_offline_entries() -> List[Dict[str, Any]]:

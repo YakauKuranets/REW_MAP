@@ -104,7 +104,7 @@ def _dispatch_alert(rule: AlertRule, text: str, *, severity: str) -> None:
     }
 
     if rule.channel == "telegram":
-        from flask import current_app
+        from compat_flask import current_app
 
         token = current_app.config.get("TELEGRAM_BOT_TOKEN", "")
         chat_id = current_app.config.get("TELEGRAM_ALERT_CHAT_ID", "")

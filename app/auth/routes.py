@@ -8,12 +8,12 @@ helpers.require_admin().
 
 from datetime import datetime, timedelta
 
-from flask import Response, abort, jsonify, request, session, current_app
+from compat_flask import Response, abort, jsonify, request, session, current_app
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required
 
 from ..audit.logger import log_admin_action
 from ..security.rate_limit import check_rate_limit
-from werkzeug.security import check_password_hash
+from compat_werkzeug_security import check_password_hash
 from ..services.permissions_service import verify_admin_credentials
 from ..extensions import db
 

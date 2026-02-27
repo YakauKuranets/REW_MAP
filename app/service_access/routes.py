@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-from flask import jsonify, request, session
+from compat_flask import jsonify, request, session
 
 from . import bp
 from ..extensions import db
@@ -185,7 +185,7 @@ def admin_approve():
     row = _admin_set_status(uid, "officer", note=note)
     # best-effort notify user in Telegram (optional)
     try:
-        from flask import current_app
+        from compat_flask import current_app
         from ..integrations.telegram_sender import send_telegram_message
         bot_token = (current_app.config.get("TELEGRAM_BOT_TOKEN") or "").strip()
         if bot_token:

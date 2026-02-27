@@ -20,7 +20,7 @@ import re
 from datetime import datetime
 from typing import List, Dict, Any, Optional, Tuple
 
-from flask import jsonify, request, Response, current_app, session
+from compat_flask import jsonify, request, Response, current_app, session
 from pydantic import BaseModel, ValidationError
 
 from ..helpers import require_admin, parse_coord

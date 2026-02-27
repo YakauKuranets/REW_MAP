@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional, Tuple
 
-from flask import Flask
+from compat_flask import Flask
 
 from ..extensions import db
 from ..sockets import broadcast_event_sync

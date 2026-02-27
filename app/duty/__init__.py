@@ -1,6 +1,6 @@
 """Duty (наряды) модуль: смены, трекинг, обеды и журнал."""
 
-from flask import Blueprint
+from compat_flask import Blueprint
 
 bp = Blueprint('duty', __name__)
 

@@ -3,8 +3,8 @@ from __future__ import annotations
 import os
 import uuid
 
-from flask import current_app, jsonify, request
-from werkzeug.utils import secure_filename
+from compat_flask import current_app, jsonify, request
+from compat_werkzeug_utils import secure_filename
 
 from app.auth.decorators import jwt_or_api_required
 from app.extensions import db

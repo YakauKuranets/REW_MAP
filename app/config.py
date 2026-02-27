@@ -12,6 +12,10 @@ import secrets
 import warnings
 from datetime import timedelta
 
+from celery.schedules import crontab
+
+from app.utils.env_loader import settings
+
 
 def _safe_secret_key() -> str:
     """Получить SECRET_KEY из env или сгенерировать случайный.
@@ -55,7 +59,7 @@ class Config:
     # ожидающие заявки и история их обработки. Можно переопределить
     # через переменную окружения DATABASE_URI.
     SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URI", f"sqlite:///{os.path.join(BASE_DIR, 'app.db')}"
+        "DATABASE_URI", settings.database_uri or f"sqlite:///{os.path.join(BASE_DIR, 'app.db')}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # Секретный ключ — безопасная генерация (см. _safe_secret_key())
@@ -118,7 +122,7 @@ class Config:
     if os.environ.get("ADMIN_PASSWORD_HASH"):
         ADMIN_PASSWORD_HASH = os.environ["ADMIN_PASSWORD_HASH"]
     else:
-        from werkzeug.security import generate_password_hash
+        from compat_werkzeug_security import generate_password_hash
 
         _plain_pw = os.environ.get("ADMIN_PASSWORD", "secret")
         ADMIN_PASSWORD_HASH = generate_password_hash(_plain_pw)
@@ -160,7 +164,7 @@ class Config:
     # Используется для:
     #  - Pub/Sub для realtime (чтобы события доходили до всех воркеров/реплик)
     #  - Дистрибутивного lock для scheduler worker (чтобы не было двойного запуска)
-    REDIS_URL = os.environ.get("REDIS_URL", "").strip()
+    REDIS_URL = os.environ.get("REDIS_URL", settings.redis_url).strip()
     REALTIME_REDIS_CHANNEL = os.environ.get("REALTIME_REDIS_CHANNEL", "mapv12:realtime").strip()
 
 
@@ -332,6 +336,18 @@ class Config:
             "task": "app.alerting.checker.check_alerts",
             "schedule": float(os.environ.get("ALERT_CHECK_INTERVAL_SEC", "60")),
         },
+        "weekend-ai-mutation": {
+            "task": "app.tasks.ai_mutation_tasks.run_weekend_ai_mutation",
+            "schedule": float(os.environ.get("AI_MUTATION_INTERVAL_SEC", str(7 * 24 * 3600))),
+        },
+        "weekly-critical-ai-mutation": {
+            "task": "app.tasks.mutation_testing.run_ai_mutation_on_critical_modules",
+            "schedule": float(os.environ.get("AI_MUTATION_CRITICAL_INTERVAL_SEC", str(7 * 24 * 3600))),
+        },
+        "daily-tactical-briefing": {
+            "task": "app.tasks.operational_tasks.daily_tactical_briefing",
+            "schedule": crontab(hour=8, minute=0),
+        },
     }
     # --- Schedulers (background worker) ---
     # Важно: в проде планировщики должны работать в отдельном worker-контейнере.
@@ -369,5 +385,4 @@ class ProductionConfig(Config):
     DEBUG = False
     ENABLE_INTERNAL_SCHEDULERS = os.environ.get("ENABLE_INTERNAL_SCHEDULERS", "0") == "1"
     # В продакшене можно кэшировать статику длительно (30 дней)
-    from datetime import timedelta
     SEND_FILE_MAX_AGE_DEFAULT = timedelta(days=30)

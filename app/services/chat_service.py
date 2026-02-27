@@ -19,7 +19,7 @@ import requests
 from typing import List, Dict, Any, Optional
 
 from sqlalchemy import func
-from flask import current_app
+from compat_flask import current_app
 
 from ..models import db, ChatMessage, ChatDialog
 from ..sockets import broadcast_event_sync

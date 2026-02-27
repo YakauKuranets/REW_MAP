@@ -11,7 +11,7 @@ from email.mime.text import MIMEText
 from pathlib import Path
 from typing import Optional
 
-from flask import current_app
+from compat_flask import current_app
 
 logger = logging.getLogger(__name__)
 

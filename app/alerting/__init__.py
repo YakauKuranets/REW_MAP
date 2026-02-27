@@ -1,5 +1,5 @@
-from flask import Blueprint
+"""Alerting FastAPI package."""
 
-bp = Blueprint("alerting", __name__, url_prefix="/api/alerts")
+from .routes import router
 
-from . import routes  # noqa: E402,F401
+__all__ = ["router"]

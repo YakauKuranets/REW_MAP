@@ -10,7 +10,7 @@
 import math
 from typing import Any, Dict, List, Optional
 
-from flask import abort, session
+from compat_flask import abort, session
 from .services.permissions_service import get_admin_by_username, has_role, has_zone_access
 
 
@@ -143,7 +143,7 @@ def require_admin(min_role: str = "editor") -> None:
     # Легаси путь: один админ из конфига (считаем как superadmin),
     # но только если username совпал и сессия помечена как is_admin.
     try:
-        from flask import current_app
+        from compat_flask import current_app
         stored_user = current_app.config.get("ADMIN_USERNAME")
     except Exception:
         stored_user = None

@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from flask import Response, jsonify, request
+from compat_flask import Response, jsonify, request
 
 from . import bp
 from ..helpers import require_admin

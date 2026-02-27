@@ -6,7 +6,7 @@ import os
 import tempfile
 from typing import Any
 
-from werkzeug.datastructures import FileStorage
+from compat_werkzeug_datastructures import FileStorage
 
 from ..tasks import process_voice_incident
 

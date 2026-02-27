@@ -8,7 +8,7 @@
 `/addresses` в URL.  Блюпринт регистрируется с префиксом `/api`.
 """
 
-from flask import Blueprint
+from compat_flask import Blueprint
 
 bp = Blueprint('general', __name__)
 

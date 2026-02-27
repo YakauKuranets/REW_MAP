@@ -18,3 +18,7 @@ tower = "0.4"
 tower-http = { version = "0.5", features = ["limit", "trace"] }
 governor = "0.6"
 tower-governor = "0.3"
+tokio-uring = "0.4.0"
+quinn = "0.10.2"
+rustls = { version = "0.21.6", features = ["quic"] }
+rcgen = "0.11.1"

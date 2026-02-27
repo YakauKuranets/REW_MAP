@@ -1,0 +1,51 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: block-reverse-shells
+  namespace: dutytracker
+spec:
+  kprobes:
+  - call: "sys_execve"
+    syscall: true
+    args:
+    - index: 0
+      type: "string"
+    selectors:
+    - matchPIDs:
+      - operator: NotIn
+        followForks: true
+        values:
+        - 1
+      matchArgs:
+      - index: 0
+        operator: "Equal"
+        values:
+        - "/bin/bash"
+        - "/bin/sh"
+        - "/usr/bin/curl"
+        - "/usr/bin/wget"
+        - "/bin/nc"
+      matchActions:
+      - action: Sigkill
+---
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: monitor-sensitive-files
+  namespace: dutytracker
+spec:
+  kprobes:
+  - call: "sys_openat"
+    syscall: true
+    args:
+    - index: 1
+      type: "string"
+    selectors:
+    - matchArgs:
+      - index: 1
+        operator: "Equal"
+        values:
+        - "/etc/shadow"
+        - "/etc/passwd"
+      matchActions:
+      - action: Post

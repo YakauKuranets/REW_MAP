@@ -2,6 +2,13 @@ const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const isDev = require('electron-is-dev');
 
+// ФОРСИРУЕМ АППАРАТНОЕ УСКОРЕНИЕ WEBGPU (Ring 0 GPU Access)
+app.commandLine.appendSwitch('enable-unsafe-webgpu');
+app.commandLine.appendSwitch('enable-features', 'Vulkan,VulkanFromANGLE,DefaultANGLEVulkan');
+app.commandLine.appendSwitch('ignore-gpu-blocklist');
+// Отключаем ограничение FPS для максимальной производительности
+app.commandLine.appendSwitch('disable-frame-rate-limit');
+
 let mainWindow;
 
 function createWindow() {

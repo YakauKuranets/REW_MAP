@@ -7,13 +7,13 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from flask import jsonify, request
+from compat_flask import jsonify, request
 
 from . import bp
 from ..extensions import db
 from ..helpers import require_admin
 from ..models import AdminUser, Zone
-from werkzeug.security import generate_password_hash
+from compat_werkzeug_security import generate_password_hash
 
 
 def _admin_to_dict(admin: AdminUser) -> Dict[str, Any]:

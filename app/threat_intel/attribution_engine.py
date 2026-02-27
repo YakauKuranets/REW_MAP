@@ -4,11 +4,17 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 import random
 from typing import Any
 
+import httpx
+
 from app.analytics.relation_engine import graph_db
 from app.osint.image_validator import decrypt_metadata, validate_image_integrity
+
+logger = logging.getLogger(__name__)
+AI_ENGINE_URL = "http://ai-engine-service:8080"
 
 
 class KrakenDBAdapter:
@@ -45,18 +51,33 @@ class KrakenDBAdapter:
 kraken_db = KrakenDBAdapter()
 
 
+async def ask_ai_advisor(text: str, source: str) -> dict:
+    """Delegate threat text analysis to AI Engine microservice via HTTP."""
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.post(
+                f"{AI_ENGINE_URL}/api/v1/analyze_threat",
+                json={"raw_text": text, "source": source},
+                timeout=30.0,
+            )
+            response.raise_for_status()
+            return response.json().get("analysis") or {}
+        except Exception as e:
+            logger.error("[AI_GATEWAY] Ошибка связи с нейро-ядром: %s", e)
+            return {"error": "AI Engine Offline"}
+
+
 async def enrich_actor_profile(alias: str, email: str | None = None) -> dict[str, Any]:
     """Legacy enrichment entrypoint writing data through Neo4j relation engine."""
     if email:
         await kraken_db.add_evidence(alias, "THREAT_ACTOR", email, "EMAIL", "HAS_EMAIL", weight=0.9)
-    return await kraken_db.get_actor_profile(alias)
+    profile = await kraken_db.get_actor_profile(alias)
+    profile["ai_analysis"] = await ask_ai_advisor(f"alias={alias};email={email or ''}", "darknet_forum")
+    return profile
 
 
 async def process_actor_image(alias: str, image_path: str):
-    """
-    Обрабатывает изображение, предположительно связанное с объектом интереса.
-    Использует валидатор изображений для получения метаданных.
-    """
+    """Process actor image metadata and enrich attribution graph."""
     validation_result = validate_image_integrity(image_path)
 
     if not validation_result["valid"]:
@@ -84,7 +105,6 @@ async def process_actor_image(alias: str, image_path: str):
         lat_rounded = round(float(gps["lat"]), 2)
         lon_rounded = round(float(gps["lon"]), 2)
         geo_region = f"{lat_rounded},{lon_rounded}"
-
         encrypted_gps = validation_result["metadata"].get("gps", "")
 
         await kraken_db.add_evidence(
@@ -98,14 +118,12 @@ async def process_actor_image(alias: str, image_path: str):
         )
 
     await _inject_noise_nodes(alias)
-
-    return await kraken_db.get_actor_profile(alias)
+    profile = await kraken_db.get_actor_profile(alias)
+    profile["ai_analysis"] = await ask_ai_advisor(str(metadata), "image_metadata")
+    return profile
 
 
 async def _inject_noise_nodes(alias: str):
-    """
-    Внедряет в граф случайные фиктивные связи.
-    """
     fake_devices = ["Canon EOS 5D", "iPhone 12", "Samsung Galaxy S21", "Nikon D850", "Google Pixel 6"]
     fake_regions = ["55.75,37.61", "40.71,-74.00", "34.05,-118.24", "51.50,-0.12", "35.68,139.76"]
 
@@ -154,4 +172,6 @@ async def process_new_intel(raw_intel: dict[str, Any]) -> dict[str, Any]:
     if alias != "unknown_actor" and raw_intel.get("email"):
         await kraken_db.add_evidence(alias, "THREAT_ACTOR", raw_intel["email"], "EMAIL", "HAS_EMAIL", weight=0.9)
 
-    return await kraken_db.get_actor_profile(alias)
+    profile = await kraken_db.get_actor_profile(alias)
+    profile["ai_analysis"] = await ask_ai_advisor(str(raw_intel), "darknet_forum")
+    return profile

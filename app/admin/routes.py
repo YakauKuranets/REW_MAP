@@ -12,7 +12,7 @@
 from datetime import datetime, timedelta
 from typing import Any, Dict, List
 
-from flask import request, jsonify
+from compat_flask import request, jsonify
 
 from ..extensions import db
 from ..models import Address, PendingMarker, PendingHistory

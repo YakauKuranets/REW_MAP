@@ -9,6 +9,18 @@ logger = logging.getLogger(__name__)
 CF_API_TOKEN = os.getenv("CLOUDFLARE_API_TOKEN")
 CF_ZONE_ID = os.getenv("CLOUDFLARE_ZONE_ID")
 
+_BLOCKED_ATTACKS = 0
+
+
+def register_blocked_attack() -> None:
+    global _BLOCKED_ATTACKS
+    _BLOCKED_ATTACKS += 1
+
+
+def get_blocked_attacks() -> int:
+    """Return number of attacks blocked by SOAR runtime since process start."""
+    return _BLOCKED_ATTACKS
+
 
 async def block_ip_on_edge(ip_address: str, reason: str = "Aegis Autonomous Block"):
     """
@@ -38,6 +50,7 @@ async def block_ip_on_edge(ip_address: str, reason: str = "Aegis Autonomous Bloc
             response = await client.post(url, headers=headers, json=payload, timeout=5.0)
             if response.status_code == 200:
                 logger.critical("[AEGIS_SOAR] ВНИМАНИЕ! IP %s успешно заблокирован на уровне WAF!", ip_address)
+                register_blocked_attack()
                 return True
 
             logger.error("[AEGIS_SOAR] Ошибка WAF API: %s", response.text)

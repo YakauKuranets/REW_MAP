@@ -8,7 +8,7 @@
 
 """
 
-from flask import Blueprint
+from compat_flask import Blueprint
 
 bp = Blueprint('chat', __name__, url_prefix='/api/chat')
 

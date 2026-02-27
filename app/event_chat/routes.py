@@ -10,14 +10,14 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Dict, Optional, List
 
-from flask import request, jsonify, abort, session, current_app
+from compat_flask import request, jsonify, abort, session, current_app
 
 from ..helpers import require_admin
 from ..extensions import db
 from ..realtime.hub import broadcast_sync
 from . import bp
 from .models import Channel, Message, ChannelMember, PushToken
-from werkzeug.utils import secure_filename
+from compat_werkzeug_utils import secure_filename
 import os
 import uuid
 import json

@@ -6,7 +6,7 @@
   колокольчика и индикатора чата.
 """
 
-from flask import Blueprint
+from compat_flask import Blueprint
 
 bp = Blueprint("notifications", __name__, url_prefix="/api/notifications")
 

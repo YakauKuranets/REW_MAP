@@ -3,6 +3,7 @@ package com.mapv12.dutytracker
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Context
 import android.os.Build
 import androidx.room.Room
 import androidx.core.app.NotificationCompat
@@ -13,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import com.mapv12.dutytracker.security.HardwareKeyStore
 import net.sqlcipher.database.SupportFactory
 
 /**
@@ -26,20 +28,6 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        // Room DB — offline queue + event journal (encrypted with SQLCipher)
-        val dbPassphrase = SecureStores.getOrCreateDbPassphrase(applicationContext).toByteArray()
-        val factory = SupportFactory(dbPassphrase)
-
-        _db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java,
-            "dutytracker_secure.db"
-        )
-            .openHelperFactory(factory)
-            .fallbackToDestructiveMigration()
-            .build()
-
-        dbPassphrase.fill(0)
 
         // Watchdog: перезапускает трекинг если сервис убит системой
         runCatching { WatchdogWorker.ensureScheduled(applicationContext) }
@@ -104,8 +92,34 @@ class App : Application() {
     }
 
     companion object {
-        private lateinit var _db: AppDatabase
-        val db: AppDatabase get() = _db
+        @Volatile
+        private var _db: AppDatabase? = null
+
+        fun isDbUnlocked(): Boolean = _db != null
+
+        val db: AppDatabase
+            get() = _db ?: error("Database is locked. Authenticate user first.")
+
+        @Synchronized
+        fun unlockDatabase(ctx: Context): Boolean {
+            if (_db != null) return true
+
+            val hwStore = HardwareKeyStore(ctx)
+            val dbPassphrase = hwStore.getOrCreateProtectedDbPassphrase().toByteArray()
+            val factory = SupportFactory(dbPassphrase)
+
+            _db = Room.databaseBuilder(
+                ctx.applicationContext,
+                AppDatabase::class.java,
+                "dutytracker_secure.db",
+            )
+                .openHelperFactory(factory)
+                .fallbackToDestructiveMigration()
+                .build()
+
+            dbPassphrase.fill(0)
+            return true
+        }
 
         const val CHANNEL_TRACKING = "dutytracker_tracking"
         const val CHANNEL_SOS      = "dutytracker_sos"

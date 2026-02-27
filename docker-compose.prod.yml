@@ -38,7 +38,7 @@ services:
   web:
     build: .
     container_name: mapv12_web
-    command: ["gunicorn", "-c", "deploy/gunicorn.conf.py", "wsgi:app"]
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
     env_file:
       - .env.prod
     environment:

@@ -62,7 +62,7 @@ const toActiveNodePayload = (selected) => {
   };
 };
 
-export default function CommandCenterMap({ onUserClick, flyToTarget, filters, setActiveNode }) {
+export default function CommandCenterMap({ onUserClick, flyToTarget, filters, setActiveNode, isMobile = false }) {
   const effectiveFilters = filters || {
     showAgents: true,
     showCameras: true,
@@ -98,7 +98,7 @@ export default function CommandCenterMap({ onUserClick, flyToTarget, filters, se
     login: '',
     password: '',
   });
-  const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
+  const [viewState, setViewState] = useState(isMobile ? { ...INITIAL_VIEW_STATE, zoom: 12.5, pitch: 35 } : INITIAL_VIEW_STATE);
   const [viewportSize, setViewportSize] = useState({ width: window.innerWidth, height: window.innerHeight });
 
   useEffect(() => {
@@ -243,6 +243,11 @@ export default function CommandCenterMap({ onUserClick, flyToTarget, filters, se
   });
 
   const sosPulse = Math.sin(pulseTick * 0.15) * 0.5 + 0.5;
+
+  const deviceProps = useMemo(() => ({
+    type: 'webgpu',
+    powerPreference: 'high-performance',
+  }), []);
 
   const layers = useMemo(() => {
     const neonTracksLayer = new PathLayer({
@@ -474,6 +479,8 @@ export default function CommandCenterMap({ onUserClick, flyToTarget, filters, se
         onViewStateChange={({ viewState: nextViewState }) => setViewState(nextViewState)}
         controller
         layers={layers}
+        deviceProps={deviceProps}
+        _useDevicePixels
         onClick={(info) => {
           if (info?.srcEvent?.stopPropagation) info.srcEvent.stopPropagation();
           if (!info?.object) return;
@@ -502,7 +509,7 @@ export default function CommandCenterMap({ onUserClick, flyToTarget, filters, se
         <Map
           mapStyle={MAP_STYLE}
           reuseMaps
-          dragRotate
+          dragRotate={!isMobile}
         >
           {effectiveFilters.showCameras && normalizedTerminals.map((terminal, idx) => (
             <Marker

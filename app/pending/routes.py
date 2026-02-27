@@ -9,8 +9,8 @@ from __future__ import annotations
 import os
 import time
 import json
-from flask import Response, jsonify, request, current_app
-from werkzeug.utils import secure_filename
+from compat_flask import Response, jsonify, request, current_app
+from compat_werkzeug_utils import secure_filename
 
 from ..helpers import require_admin, get_current_admin
 from ..services.permissions_service import has_zone_access
