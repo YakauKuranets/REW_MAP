@@ -67,6 +67,10 @@ celery.conf.beat_schedule = {
         "task": "app.tasks.siem_tasks.cleanup_old_events",
         "schedule": crontab(hour=2, minute=0),
     },
+    "run-red-swarm-nightly": {
+        "task": "app.tasks.diagnostics_tasks.trigger_red_swarm",
+        "schedule": crontab(hour=3, minute=0),
+    },
 }
 
 

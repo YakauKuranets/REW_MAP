@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Фоновые задачи диагностики безопасности."""
 
+import asyncio
 import logging
 
 import requests
@@ -10,6 +11,7 @@ from app.ai.test_scenario_generator import TestScenarioGenerator
 from app.diagnostics.models import DiagnosticTarget
 from app.extensions import db
 from app.network.proxy_client import get_proxy_session
+from app.ai.red_swarm_coordinator import run_nightly_swarm
 
 logger = logging.getLogger(__name__)
 
@@ -75,3 +77,21 @@ def run_security_scan(task_id: int | None, target: str, profile: str, use_proxy:
         db.session.commit()
 
     return result
+
+
+@shared_task(name="app.tasks.diagnostics_tasks.trigger_red_swarm")
+def trigger_red_swarm():
+    """Celery task wrapper для ночного AI-аудита Red Swarm."""
+    logger.warning("[RED_SWARM] Triggered from Celery Beat")
+    try:
+        report_path = asyncio.run(run_nightly_swarm())
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        try:
+            asyncio.set_event_loop(loop)
+            report_path = loop.run_until_complete(run_nightly_swarm())
+        finally:
+            loop.close()
+            asyncio.set_event_loop(None)
+
+    return {"status": "completed", "report_path": report_path}

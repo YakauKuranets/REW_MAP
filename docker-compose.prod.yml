@@ -1,6 +1,25 @@
 version: "3.9"
 
 services:
+  # Единая корпоративная база данных для всех модулей
+  db:
+    image: postgres:15-alpine
+    container_name: mapv12_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-mapv12}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mapv12_password}
+      POSTGRES_DB: ${POSTGRES_DB:-mapv12}
+    volumes:
+      - mapv12_pgdata:/var/lib/postgresql/data
+    networks:
+      - dutytracker_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mapv12} -d ${POSTGRES_DB:-mapv12}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   redis:
     image: redis:7-alpine
     container_name: mapv12_redis
@@ -22,13 +41,18 @@ services:
     command: ["gunicorn", "-c", "deploy/gunicorn.conf.py", "wsgi:app"]
     env_file:
       - .env.prod
+    environment:
+      # Жестко переключаем Web на Postgres
+      DATABASE_URI: postgresql+psycopg2://${POSTGRES_USER:-mapv12}:${POSTGRES_PASSWORD:-mapv12_password}@db:5432/${POSTGRES_DB:-mapv12}
     volumes:
-      # В проде код, как правило, не монтируем — используется образ
-      # Но монтируем данные (БД + uploads), чтобы они сохранялись между перезапусками
-      - ./app.db:/app/app.db
       - ./uploads:/app/uploads
     ports:
       - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - dutytracker_network
     restart: unless-stopped
@@ -41,26 +65,27 @@ services:
       - .env.prod
     environment:
       MAP_API_URL: "http://web:8000"
-    volumes:
-      - ./app.db:/app/app.db
+      DATABASE_URI: postgresql+psycopg2://${POSTGRES_USER:-mapv12}:${POSTGRES_PASSWORD:-mapv12_password}@db:5432/${POSTGRES_DB:-mapv12}
     depends_on:
-      - web
+      db:
+        condition: service_healthy
+      web:
+        condition: service_started
     networks:
       - dutytracker_network
     restart: unless-stopped
+
   worker:
     build: .
     container_name: mapv12_worker
+    env_file:
+      - .env.prod
     environment:
       APP_ENV: production
       DATABASE_URI: postgresql+psycopg2://${POSTGRES_USER:-mapv12}:${POSTGRES_PASSWORD:-mapv12_password}@db:5432/${POSTGRES_DB:-mapv12}
       REDIS_URL: redis://redis:6379/0
       REALTIME_REDIS_CHANNEL: ${REALTIME_REDIS_CHANNEL:-mapv12:realtime}
-      ENABLE_INTERNAL_SCHEDULERS: 0
-      DUTY_SCHEDULER_INTERVAL_SEC: ${DUTY_SCHEDULER_INTERVAL_SEC:-30}
-      TRACKER_ALERTS_INTERVAL_SEC: ${TRACKER_ALERTS_INTERVAL_SEC:-10}
-      SCHEDULER_LOCK_KEY: ${SCHEDULER_LOCK_KEY:-mapv12:schedulers:lock}
-      SCHEDULER_LOCK_TTL_SEC: ${SCHEDULER_LOCK_TTL_SEC:-60}
+      ENABLE_INTERNAL_SCHEDULERS: 1
     command: ["sh", "deploy/entrypoint_worker.sh"]
     volumes:
       - ./uploads:/app/uploads
@@ -73,16 +98,37 @@ services:
     networks:
       - dutytracker_network
     restart: unless-stopped
+    # Активация GPU для Hashcat (Снимет нагрузку с CPU при перехвате Wi-Fi)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
 
+  db_graph:
+    image: neo4j:5.12.0
+    container_name: mapv12_neo4j
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-graph_secure_pass}
+    volumes:
+      - mapv12_neo4j_data:/data
+    networks:
+      - dutytracker_network
+    restart: unless-stopped
+    # Порт 7687 для Bolt, 7474 для веб-интерфейса (можно открыть на localhost)
 
   proxy:
     image: dperson/torproxy
     container_name: dutytracker_proxy
-    ports:
-      - "9050:9050"   # SOCKS5-прокси для маршрутизации трафика
-      - "9051:9051"   # Управляющий порт (опционально)
+    # УЯЗВИМОСТЬ УСТРАНЕНА: ports заменены на expose.
+    # Теперь Tor доступен ТОЛЬКО контейнерам внутри dutytracker_network
+    expose:
+      - "9050"
+      - "9051"
     environment:
-      - TOR_MAX_CIRCUIT_DIRTINESS=30   # Периодическая смена выходных узлов
+      - TOR_MAX_CIRCUIT_DIRTINESS=30
     networks:
       - dutytracker_network
     restart: unless-stopped
@@ -98,4 +144,5 @@ networks:
 
 volumes:
   mapv12_redisdata:
-
+  mapv12_pgdata: # Добавлен вольюм для персистенции Postgres
+  mapv12_neo4j_data:

@@ -79,6 +79,43 @@ const useMapStore = create((set, get) => ({
     };
   }),
 
+
+
+  // МАССОВОЕ ОБНОВЛЕНИЕ (BATCHING)
+  batchUpdateAgentLocations: (agentsArray) => set((state) => {
+    const updatedAgents = { ...state.agents };
+    const updatedTracks = { ...state.trackPoints };
+
+    agentsArray.forEach((payload) => {
+      const rawId = payload?.agent_id ?? payload?.id ?? payload?.user_id;
+      const lat = Number(payload?.lat ?? payload?.latitude);
+      const lon = Number(payload?.lon ?? payload?.longitude);
+
+      if (rawId == null || !Number.isFinite(lat) || !Number.isFinite(lon)) return;
+
+      const agentId = String(rawId);
+      const newCoord = [lon, lat];
+
+      const currentAgent = updatedAgents[agentId] || { id: agentId, agent_id: agentId };
+      updatedAgents[agentId] = {
+        ...currentAgent,
+        ...payload,
+        id: currentAgent.id ?? agentId,
+        agent_id: agentId,
+        lon,
+        lat,
+        coordinates: newCoord,
+        last_seen: Date.now(),
+      };
+
+      const currentTrack = updatedTracks[agentId]?.path || [];
+      const updatedPath = [...currentTrack, newCoord].slice(-50);
+      updatedTracks[agentId] = { id: agentId, agent_id: agentId, path: updatedPath };
+    });
+
+    return { agents: updatedAgents, trackPoints: updatedTracks };
+  }),
+
   updateAgent: (data) => set((state) => {
     const rawId = data?.agent_id ?? data?.id ?? data?.user_id;
     if (rawId === undefined || rawId === null) return state;

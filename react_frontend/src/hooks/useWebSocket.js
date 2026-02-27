@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import useMapStore from '../store/useMapStore';
 import useChatStore from '../store/useChatStore';
 
@@ -12,11 +12,11 @@ const getPendingId = (payload) => payload?.pending_id ?? payload?.marker_id ?? p
  * @returns {void}
  */
 export default function useWebSocket({
-  url = process.env.REACT_APP_REALTIME_WS_URL || 'ws://localhost:8765',
+  url = 'ws://localhost:8765',
   wsFactory,
 } = {}) {
   const updateAgent = useMapStore((s) => s.updateAgent);
-  const updateAgentLocation = useMapStore((s) => s.updateAgentLocation);
+  const batchUpdateAgentLocations = useMapStore((s) => s.batchUpdateAgentLocations);
   const addIncident = useMapStore((s) => s.addIncident);
   const addChatMessage = useMapStore((s) => s.addChatMessage);
   const upsertPendingMarker = useMapStore((s) => s.upsertPendingMarker);
@@ -25,6 +25,10 @@ export default function useWebSocket({
   const addThreatAlert = useMapStore((s) => s.addThreatAlert);
 
   const addIncidentChatMessage = useChatStore((s) => s.addMessage);
+
+  // Буфер для накопления координат
+  const locationBuffer = useRef([]);
+  const frameId = useRef(null);
 
   useEffect(() => {
     const socket = wsFactory ? wsFactory(url) : new WebSocket(url);
@@ -37,11 +41,19 @@ export default function useWebSocket({
 
         if (!eventName) return;
 
+        // НАКОПЛЕНИЕ ПАКЕТОВ ТЕЛЕМЕТРИИ
         if (eventName === 'AGENT_LOCATION_UPDATE') {
-          if (Array.isArray(data)) {
-            data.forEach((item) => updateAgentLocation(item));
-          } else {
-            updateAgentLocation(data);
+          const items = Array.isArray(data) ? data : [data];
+          locationBuffer.current.push(...items);
+
+          if (!frameId.current) {
+            frameId.current = requestAnimationFrame(() => {
+              if (locationBuffer.current.length > 0) {
+                batchUpdateAgentLocations(locationBuffer.current);
+                locationBuffer.current = [];
+              }
+              frameId.current = null;
+            });
           }
           return;
         }
@@ -55,7 +67,6 @@ export default function useWebSocket({
           setTelemetry(data);
           return;
         }
-
 
         if (eventName === 'THREAT_INTEL_ALERT') {
           addThreatAlert(data);
@@ -109,7 +120,12 @@ export default function useWebSocket({
     };
 
     return () => {
+      if (frameId.current) {
+        cancelAnimationFrame(frameId.current);
+        frameId.current = null;
+      }
+      locationBuffer.current = [];
       if (socket && typeof socket.close === 'function') socket.close();
     };
-  }, [url, wsFactory, updateAgent, updateAgentLocation, addIncident, addChatMessage, upsertPendingMarker, removePendingMarker, setTelemetry, addIncidentChatMessage, addThreatAlert]);
+  }, [url, wsFactory, updateAgent, batchUpdateAgentLocations, addIncident, addChatMessage, upsertPendingMarker, removePendingMarker, setTelemetry, addIncidentChatMessage, addThreatAlert]);
 }
